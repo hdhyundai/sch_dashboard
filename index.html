@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HD현대삼호 동반성장부 통합 업무 워크스페이스</title>
+ 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+ 
+  <!-- Feather Icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+ 
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+  <style>
+    /* 미니멀 커스텀 스크롤바 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.25);
+    }
+   
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* 트랜지션 및 애니메이션 설정 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animation-fade-in {
+      animation: fadeIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .toast-enter {
+      animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+   
+    .spin-slow {
+      animation: spin 1.5s linear infinite;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col relative selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Pretendard', system-ui, sans-serif;">
+
+  <!-- 토스트 알림 컨테이너 -->
+  <div id="toast-container" class="fixed bottom-8 right-8 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- --- [Header Area] --- -->
+  <header class="sticky top-0 z-40 bg-[#F5F5F7]/80 backdrop-blur-xl border-b border-black/[0.05] px-5 md:px-10 py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all">
+   
+    <!-- 로고 및 타이틀 -->
+    <div class="flex items-center gap-3.5 w-full md:w-auto">
+      <div class="w-10 h-10 md:w-11 md:h-11 rounded-[12px] bg-gradient-to-br from-[#007AFF] to-[#0056b3] flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(0,122,255,0.3)]">
+        <i data-feather="calendar" class="text-white w-5 h-5"></i>
+      </div>
+      <div class="flex flex-col justify-center">
+        <h1 class="text-[17px] md:text-[19px] font-semibold tracking-tight text-[#1D1D1F] leading-tight">
+          HD현대삼호 동반성장부
+        </h1>
+        <div class="flex items-center gap-2 mt-0.5">
+          <p class="text-[13px] text-[#86868B] font-medium">통합 업무 워크스페이스</p>
+          <div id="sync-status" class="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#E5E5EA] text-[#86868B] cursor-help transition-all" title="데이터 동기화 상태">
+            <i data-feather="database" class="w-3 h-3"></i> 로컬 모드
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 우측 컨트롤 패널 -->
+    <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto">
+      <!-- 검색창 -->
+      <div class="relative flex-1 md:flex-none">
+        <i data-feather="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868B]"></i>
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="검색"
+          class="w-full md:w-56 lg:w-64 pl-10 pr-4 py-2 bg-black/[0.05] hover:bg-black/[0.08] focus:bg-white border-transparent focus:border-[#007AFF] rounded-[10px] text-[15px] transition-all focus:outline-none focus:ring-4 focus:ring-[#007AFF]/10 placeholder:text-[#86868B] font-medium"
+          oninput="handleSearch(this.value)"
+        />
+      </div>
+
+      <!-- 엑셀 다운로드 버튼 -->
+      <button
+        onclick="exportToCSV()"
+        class="bg-black/[0.05] hover:bg-black/[0.08] text-[#1D1D1F] active:scale-95 px-3.5 py-2 rounded-full text-[14px] font-medium flex items-center gap-1.5 transition-all whitespace-nowrap"
+        title="현재 일정을 엑셀(CSV) 파일로 다운로드합니다."
+      >
+        <i data-feather="download" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">다운로드</span>
+      </button>
+
+      <!-- 일정 추가 버튼 -->
+      <button
+        onclick="openModal()"
+        class="bg-[#007AFF] hover:bg-[#0062CC] active:scale-95 text-white px-4 md:px-5 py-2 rounded-full text-[14px] font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-[0_4px_12px_rgba(0,122,255,0.25)]"
+      >
+        <i data-feather="plus" class="w-4 h-4"></i>
+        <span>새 일정</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- --- [Main Content Area] --- -->
+  <main class="flex-1 p-4 md:p-6 lg:p-8 flex flex-col xl:flex-row gap-6 max-w-[1800px] mx-auto w-full h-full min-h-0 relative">
+   
+    <!-- 최초 로딩 오버레이 -->
+    <div id="initial-loader" class="absolute inset-0 bg-[#F5F5F7]/80 backdrop-blur-xl z-50 flex items-center justify-center rounded-[32px] transition-opacity duration-300 hidden">
+      <div class="flex flex-col items-center gap-5 bg-white p-8 rounded-[28px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-black/[0.02]">
+        <div class="p-4 bg-[#007AFF]/10 rounded-full">
+          <i data-feather="loader" class="w-8 h-8 text-[#007AFF] spin-slow"></i>
+        </div>
+        <div class="text-center">
+          <p class="font-semibold text-[#1D1D1F] text-[17px]">워크스페이스 연결 중</p>
+          <p class="text-[14px] text-[#86868B] mt-1.5">클라우드 데이터를 동기화하고 있습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- --- [Left Panel: Dashboard & Calendar] --- -->
+    <div class="flex-1 flex flex-col gap-6 min-w-0 min-h-0">
+     
+      <!-- 대시보드 패널 -->
+      <div class="bg-white p-5 md:p-6 rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col gap-5 shrink-0 transition-all border border-black/[0.02]">
+        <!-- 필터 및 포커스 영역 -->
+        <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
+          <!-- iOS Segmented Control 스타일 필터 -->
+          <div class="lg:w-1/3 flex flex-col gap-3">
+            <h3 class="text-[12px] font-semibold text-[#86868B] flex items-center gap-1.5 uppercase tracking-wider pl-1">
+              <i data-feather="filter" class="w-3.5 h-3.5"></i> 부서 필터링
+            </h3>
+            <div id="filter-buttons" class="bg-[#F2F2F7] p-1 rounded-[14px] flex flex-wrap gap-1">
+              <!-- JS 주입 -->
+            </div>
+          </div>
+
+          <div class="lg:w-2/3 flex flex-col gap-3 lg:border-l border-black/[0.05] lg:pl-8">
+            <h3 class="text-[12px] font-semibold text-[#86868B] flex items-center gap-1.5 uppercase tracking-wider pl-1">
+              <i data-feather="star" class="w-3.5 h-3.5 text-[#FF9500]"></i> 이달의 포커스 업무
+            </h3>
+            <div id="key-tasks-container" class="flex flex-wrap gap-2 overflow-y-auto max-h-[90px] no-scrollbar">
+              <!-- JS 주입 -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 캘린더 패널 -->
+      <div class="bg-white rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex-1 flex flex-col overflow-hidden min-h-0 border border-black/[0.02]">
+        <!-- [수정] 캘린더 헤더: 겹침 방지를 위해 Grid 레이아웃으로 변경 -->
+        <div class="grid grid-cols-3 items-center p-4 md:p-5 border-b border-black/[0.03] min-h-[70px] shrink-0 bg-white">
+          <!-- 왼쪽: 오늘 버튼 -->
+          <div class="flex justify-start">
+            <button onclick="handleToday()" class="px-4 py-2 text-[14px] font-medium text-[#1D1D1F] bg-[#F2F2F7] hover:bg-[#E5E5EA] rounded-[10px] transition-colors">
+              오늘
+            </button>
+          </div>
+
+          <!-- 중앙: 내비게이션 (화살표 + 날짜) -->
+          <div class="flex items-center justify-center gap-4">
+            <button onclick="handlePrevMonth()" class="p-2 hover:bg-[#F2F2F7] rounded-full transition-colors text-[#86868B] hover:text-[#1D1D1F]">
+              <i data-feather="chevron-left" class="w-5 h-5"></i>
+            </button>
+            <h2 id="calendar-title" class="text-[20px] md:text-[22px] font-semibold text-[#1D1D1F] tracking-tight min-w-[120px] text-center whitespace-nowrap">
+              <!-- JS 주입 -->
+            </h2>
+            <button onclick="handleNextMonth()" class="p-2 hover:bg-[#F2F2F7] rounded-full transition-colors text-[#86868B] hover:text-[#1D1D1F]">
+              <i data-feather="chevron-right" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <!-- 우측: 범례 -->
+          <div id="calendar-legends" class="hidden md:flex flex-wrap justify-end gap-3 text-[12px] font-medium text-[#86868B]">
+            <!-- JS 주입 -->
+          </div>
+        </div>
+
+        <!-- 요일 헤더 -->
+        <div class="grid grid-cols-7 border-b border-black/[0.03] shrink-0 bg-[#F9F9FB]">
+          <div class="text-center py-2.5 text-[12px] font-medium text-[#FF3B30]">일</div>
+          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">월</div>
+          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">화</div>
+          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">수</div>
+          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">목</div>
+          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">금</div>
+          <div class="text-center py-2.5 text-[12px] font-medium text-[#007AFF]">토</div>
+        </div>
+
+        <!-- 캘린더 그리드 영역 -->
+        <div class="flex-1 overflow-y-auto min-h-0 bg-white no-scrollbar">
+          <div class="grid grid-cols-7 grid-rows-6 h-full min-h-[500px] md:min-h-[600px] xl:min-h-[650px]" id="calendar-grid">
+            <!-- JS 주입 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- --- [Right Panel: Daily Timeline Details] --- -->
+   <div class="w-full xl:w-[380px] 2xl:w-[420px] bg-white rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col h-[450px] md:h-[550px] xl:h-auto max-h-[calc(100vh-6rem)] xl:sticky top-[104px] shrink-0 transition-all border border-black/[0.02] mt-6 xl:mt-0">
+      <div class="p-5 md:p-6 border-b border-black/[0.03] flex justify-between items-start">
+        <div>
+          <h2 class="text-[18px] md:text-[20px] font-semibold text-[#1D1D1F] mb-1 tracking-tight">
+            상세 일정
+          </h2>
+          <p id="daily-focus-title" class="text-[13px] font-medium text-[#86868B] flex items-center">
+            <!-- JS 주입 -->
+          </p>
+        </div>
+        <button
+          onclick="openModal(selectedDate)"
+          class="p-2 bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#007AFF] rounded-full transition-colors active:scale-95"
+          title="선택한 날짜에 새로운 일정을 추가합니다."
+        >
+          <i data-feather="plus" class="w-5 h-5"></i>
+        </button>
+      </div>
+     
+      <!-- 일간 업무 리스트 -->
+      <div id="daily-focus-list" class="flex-1 overflow-y-auto p-4 md:p-5 space-y-3 bg-[#F9F9FB] rounded-b-[28px] no-scrollbar">
+        <!-- JS 주입 -->
+      </div>
+    </div>
+  </main>
+
+  <!-- --- [Modal: Task Registration & Edit] --- -->
+  <div id="taskModal" class="fixed inset-0 bg-black/40 backdrop-blur-md items-center justify-center z-[100] p-4 sm:p-6 hidden flex transition-all duration-300">
+    <div class="bg-white rounded-[32px] shadow-[0_24px_60px_rgba(0,0,0,0.15)] w-full max-w-[600px] overflow-hidden flex flex-col max-h-[92vh] animation-fade-in border border-white/20">
+     
+      <!-- 모달 헤더 -->
+      <div class="flex items-center justify-between px-6 py-5 border-b border-black/[0.05] bg-white">
+        <div>
+          <h3 id="modal-title" class="text-[20px] font-semibold text-[#1D1D1F] tracking-tight">새로운 일정</h3>
+        </div>
+        <button onclick="closeModal()" class="p-2 text-[#86868B] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] rounded-full transition-colors focus:outline-none bg-[#F2F2F7]">
+          <i data-feather="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+     
+      <!-- 모달 폼 -->
+      <form id="taskForm" onsubmit="handleTaskSubmit(event)" class="p-6 overflow-y-auto space-y-6 bg-white no-scrollbar">
+       
+        <!-- 제목 및 중요도 -->
+        <div class="flex flex-col gap-3">
+          <input id="f_title" required type="text" class="w-full bg-[#F5F5F7] border-transparent rounded-[14px] p-4 text-[17px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="일정 제목" />
+          
+          <label class="flex items-center gap-2 cursor-pointer w-fit pl-1 mt-1">
+            <input type="checkbox" id="f_isFocus" class="w-4 h-4 text-[#FF9500] rounded-[4px] border-gray-300 focus:ring-[#FF9500] cursor-pointer">
+            <span class="text-[14px] font-medium text-[#1D1D1F] flex items-center gap-1.5">
+              이달의 포커스 업무로 강조
+            </span>
+          </label>
+        </div>
+
+        <div class="h-px w-full bg-black/[0.05]"></div>
+
+        <!-- 구분 및 소속 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">업무 구분 <span class="text-[#FF3B30]">*</span></label>
+            <select id="f_type" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
+              <option value="individual">개인별 업무</option>
+              <option value="section">과단위 (공통) 업무</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">소속 파트 <span class="text-[#FF3B30]">*</span></label>
+            <select id="f_teamId" onchange="handleTeamChange()" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
+              <!-- JS 주입 -->
+            </select>
+          </div>
+        </div>
+
+        <!-- 담당자 및 장소 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">담당자 명 <span id="assignee_asterisk" class="text-[#FF3B30]">*</span></label>
+            <input id="f_assignee" required type="text" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="예: 김상생 책임" />
+          </div>
+          <div>
+            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">장소</label>
+            <input id="f_location" type="text" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="선택 사항" />
+          </div>
+        </div>
+
+        <div class="h-px w-full bg-black/[0.05]"></div>
+
+        <!-- 날짜 및 시간 영역 -->
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">시작 날짜 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_startDate" required type="date" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+            </div>
+            <div>
+              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">종료 날짜 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_endDate" required type="date" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">시작 시간 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_startTime" required type="time" value="09:00" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+            </div>
+            <div>
+              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">종료 시간 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_endTime" required type="time" value="18:00" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+            </div>
+          </div>
+        </div>
+
+        <div class="h-px w-full bg-black/[0.05]"></div>
+
+        <!-- 상세 메모 -->
+        <div>
+          <textarea id="f_description" rows="3" class="w-full bg-[#F5F5F7] border-transparent rounded-[14px] p-4 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all resize-none placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="추가 메모를 입력하세요 (선택 사항)"></textarea>
+        </div>
+
+        <!-- 하단 컨트롤 버튼 -->
+        <div class="pt-2 flex justify-between gap-3 items-center">
+          <button type="button" id="btn_delete" onclick="handleDeleteBtnClick()" class="hidden px-5 py-3 rounded-full text-[15px] font-medium text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 transition-colors active:scale-95">삭제</button>
+          <div class="flex gap-3 ml-auto">
+            <button type="submit" id="btn_submit" class="px-8 py-3 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-full text-[15px] font-semibold shadow-[0_4px_12px_rgba(0,122,255,0.3)] transition-all active:scale-95">저장</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JavaScript: 비즈니스 로직 및 컴포넌트 제어 -->
+  <!-- ========================================== -->
+  <script>
+    /* -------------------------------------------------------------------------- */
+    /* 1. 환경 설정 및 상수 정의 (Configuration & Constants)                          */
+    /* -------------------------------------------------------------------------- */
+    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzEwdXj0m7FcW5RGHtfAaEiIGo5hqZGQ9rQjoEmNjZUUccpURKg40hp5LEe6Vw0EB9ojw/exec";
+
+    const TEAMS = [
+      { id: 't5', name: '수석님', text: 'text-[#FF3B30]', bg: 'bg-[#FF3B30]/10', border: 'border-[#FF3B30]/20', hex: '#FF3B30' },
+      { id: 't1', name: '기획과', text: 'text-[#007AFF]', bg: 'bg-[#007AFF]/10', border: 'border-[#007AFF]/20', hex: '#007AFF' },
+      { id: 't2', name: '지원과', text: 'text-[#34C759]', bg: 'bg-[#34C759]/10', border: 'border-[#34C759]/20', hex: '#34C759' },
+      { id: 't3', name: '인력지원과', text: 'text-[#FF9500]', bg: 'bg-[#FF9500]/10', border: 'border-[#FF9500]/20', hex: '#FF9500' },
+      { id: 't4', name: '협력과', text: 'text-[#AF52DE]', bg: 'bg-[#AF52DE]/10', border: 'border-[#AF52DE]/20', hex: '#AF52DE' },
+    ];
+
+    const HOLIDAYS = {
+      "2025-01-01": "신정", "2025-01-28": "설날 연휴", "2025-01-29": "설날", "2025-01-30": "설날 연휴",
+      "2025-03-01": "3·1절", "2025-03-03": "대체공휴일", "2025-05-05": "어린이날", "2025-05-06": "대체공휴일",
+      "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절", "2025-10-05": "추석 연휴",
+      "2025-10-06": "추석", "2025-10-07": "추석 연휴", "2025-10-08": "대체공휴일", "2025-10-09": "한글날", "2025-12-25": "성탄절",
+      "2026-01-01": "신정", "2026-01-02": "회사휴무",
+      "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴", "2026-02-19": "대체휴가",
+      "2026-03-01": "3·1절", "2026-03-02": "대체공휴일",
+      "2026-05-05": "어린이날", "2026-05-24": "부처님오신날", "2026-05-25": "대체공휴일",
+      "2026-06-03": "지방선거일", "2026-06-06": "현충일",
+      "2026-08-03": "하기휴가", "2026-08-04": "하기휴가", "2026-08-05": "하기휴가", "2026-08-06": "하기휴가", "2026-08-07": "하기휴가", "2026-08-08": "하기휴가", "2026-08-09": "하기휴가", "2026-08-10": "하기휴가", "2026-08-11": "하기휴가", "2026-08-12": "하기휴가", "2026-08-13": "하기휴가", "2026-08-14": "하기휴가",
+      "2026-08-15": "광복절",
+      "2026-09-24": "추석 연휴", "2026-09-25": "추석", "2026-09-26": "추석 연휴", "2026-09-27": "대체공휴일", "2026-09-28": "대체휴가",
+      "2026-10-03": "개천절", "2026-10-09": "한글날", "2026-10-27": "창립기념일",
+      "2026-12-25": "기독탄신일"
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /* 2. 전역 상태 관리 (Global State)                                             */
+    /* -------------------------------------------------------------------------- */
+    let tasks = [];
+    let currentDate = new Date();
+    let selectedDate = new Date();
+    let filterTeam = 'all';
+    let searchQuery = '';
+    let currentEditTaskId = null;
+    let isDeleteConfirming = false;
+
+    /* -------------------------------------------------------------------------- */
+    /* 3. 유틸리티 함수 (Helper Functions)                                          */
+    /* -------------------------------------------------------------------------- */
+    const formatDateForInput = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
+    const formatShortDate = (dateString) => {
+      const date = new Date(dateString);
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      return `${date.getMonth() + 1}/${date.getDate()}(${days[date.getDay()]})`;
+    };
+
+    const formatTaskDateRange = (start, end) => {
+      if (start === end) return formatShortDate(start);
+      return `${formatShortDate(start)}~${formatShortDate(end)}`;
+    };
+
+    const isSameDate = (d1, d2) => {
+      if (!d1 || !d2) return false;
+      return d1.toDateString() === d2.toDateString();
+    };
+   
+    const getFilteredTasks = () => {
+      return tasks.filter(task => {
+        const matchTeam = filterTeam === 'all' || task.teamId === filterTeam;
+        const searchLower = searchQuery.toLowerCase();
+        const matchSearch = task.title.toLowerCase().includes(searchLower) ||
+                            task.assignee.toLowerCase().includes(searchLower);
+        return matchTeam && matchSearch;
+      });
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /* 4. UI 제어 및 렌더링 로직 (UI Rendering)                                     */
+    /* -------------------------------------------------------------------------- */
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+     
+      let icon, bgClass, textClass;
+      if (type === 'success') {
+        icon = 'check-circle'; bgClass = 'bg-[#34C759]/10'; textClass = 'text-[#34C759]';
+      } else if (type === 'error') {
+        icon = 'alert-triangle'; bgClass = 'bg-[#FF3B30]/10'; textClass = 'text-[#FF3B30]';
+      } else {
+        icon = 'info'; bgClass = 'bg-[#007AFF]/10'; textClass = 'text-[#007AFF]';
+      }
+
+      toast.className = `toast-enter flex items-center gap-3 bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-black/[0.05] rounded-full px-5 py-3.5 pointer-events-auto`;
+      toast.innerHTML = `<div class="p-1 rounded-full ${bgClass} ${textClass}"><i data-feather="${icon}" class="w-4 h-4"></i></div><span class="text-[14px] font-medium text-[#1D1D1F] pr-2">${message}</span>`;
+      container.appendChild(toast);
+      feather.replace();
+
+      setTimeout(() => {
+        toast.style.animation = 'fadeIn 0.3s ease-in reverse forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function exportToCSV() {
+      if (tasks.length === 0) {
+        showToast('다운로드할 데이터가 없습니다.', 'error');
+        return;
+      }
+     
+      const headers = ['일련번호', '업무 제목', '구분', '소속 파트', '담당자', '장소', '시작일자', '종료일자', '시작시간', '종료시간', '주요업무 여부', '상세메모'];
+      const rows = tasks.map(task => {
+        const teamName = TEAMS.find(t => t.id === task.teamId)?.name || '알 수 없음';
+        const typeName = task.type === 'section' ? '과단위' : '개인별';
+        const isFocusText = task.isFocus ? 'O' : 'X';
+        const escapeCSV = (str) => `"${(str || '').toString().replace(/"/g, '""')}"`;
+       
+        return [
+          task.id, escapeCSV(task.title), typeName, teamName, escapeCSV(task.assignee),
+          escapeCSV(task.location), task.startDate, task.endDate, task.startTime, task.endTime,
+          isFocusText, escapeCSV(task.description)
+        ].join(',');
+      });
+     
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `동반성장부_업무일정_${formatDateForInput(new Date())}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('엑셀 파일 다운로드가 완료되었습니다.', 'success');
+    }
+
+    function updateSyncStatus(mode) {
+      const statusEl = document.getElementById('sync-status');
+      const statusConfig = {
+        loading: { html: `<i data-feather="refresh-cw" class="w-3 h-3 spin-slow"></i> 통신 중`, classes: "bg-[#007AFF]/10 text-[#007AFF]" },
+        google: { html: `<i data-feather="cloud" class="w-3 h-3"></i> 동기화됨`, classes: "bg-[#34C759]/10 text-[#34C759]" },
+        error: { html: `<i data-feather="alert-circle" class="w-3 h-3"></i> 연결 실패`, classes: "bg-[#FF3B30]/10 text-[#FF3B30] cursor-pointer" },
+        local: { html: `<i data-feather="hard-drive" class="w-3 h-3"></i> 로컬 모드`, classes: "bg-[#E5E5EA] text-[#86868B]" }
+      };
+
+      const cur = statusConfig[mode] || statusConfig.local;
+      statusEl.innerHTML = cur.html;
+      statusEl.className = `flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full transition-all ${cur.classes}`;
+     
+      if(mode === 'error') statusEl.onclick = () => alert('클라우드 연결 오류.\n로컬 저장소에 임시 보관 중입니다.');
+      else statusEl.onclick = null;
+      feather.replace();
+    }
+
+    function updateAll() {
+      renderDashboard();
+      renderCalendar();
+      renderDailyFocus();
+      feather.replace();
+    }
+
+    // 1) 좌측 상단 대시보드 렌더링
+    function renderDashboard() {
+      const filtered = getFilteredTasks();
+     
+      let filterHtml = `<button onclick="setFilter('all')" class="flex-1 min-w-[60px] px-3 py-1.5 rounded-[10px] text-[13px] font-medium transition-all ${filterTeam === 'all' ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#86868B] hover:text-[#1D1D1F]'}">전체</button>`;
+      TEAMS.forEach(team => {
+        const isActive = filterTeam === team.id;
+        filterHtml += `<button onclick="setFilter('${team.id}')" class="flex-1 min-w-[60px] px-3 py-1.5 rounded-[10px] text-[13px] font-medium transition-all ${isActive ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#86868B] hover:text-[#1D1D1F]'}">${team.name.substring(0,2)}</button>`;
+      });
+      document.getElementById('filter-buttons').innerHTML = filterHtml;
+
+      const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+      const monthTasks = filtered.filter(t => t.startDate.startsWith(currentYearMonth) || t.endDate.startsWith(currentYearMonth));
+      const focusTasks = monthTasks.filter(t => t.isFocus).sort((a, b) => {
+        if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
+        return a.startTime.localeCompare(b.startTime);
+      });
+
+      let keyTasksHtml = '';
+      if (focusTasks.length === 0) {
+        keyTasksHtml = `<span class="text-[13px] text-[#86868B] px-1 py-1 font-medium">지정된 포커스 업무가 없습니다.</span>`;
+      } else {
+        focusTasks.forEach(task => {
+          const team = TEAMS.find(t => t.id === task.teamId);
+          const dateRangeBadge = formatTaskDateRange(task.startDate, task.endDate);
+
+          keyTasksHtml += `
+            <div ondblclick="openEditTaskModal(${task.id})" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-[#F5F5F7] hover:bg-[#E5E5EA] select-none" title="더블 클릭하여 수정">
+              <span class="text-[11px] font-semibold text-[#1D1D1F] bg-white px-2 py-0.5 rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)]">${dateRangeBadge}</span>
+              <div class="w-1.5 h-1.5 rounded-full" style="background-color: ${team.hex};"></div>
+              <span class="font-medium text-[#1D1D1F] truncate max-w-[150px]">${task.title}</span>
+            </div>
+          `;
+        });
+      }
+      document.getElementById('key-tasks-container').innerHTML = keyTasksHtml;
+    }
+
+    // 2) 중앙 캘린더 그리드 렌더링
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      document.getElementById('calendar-title').innerText = `${year}년 ${month + 1}월`;
+
+      let legendsHtml = '';
+      TEAMS.forEach(team => {
+        legendsHtml += `<span class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full" style="background-color:${team.hex}"></div> ${team.name}</span>`;
+      });
+      document.getElementById('calendar-legends').innerHTML = legendsHtml;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+      const filtered = getFilteredTasks();
+
+      let gridHtml = '';
+
+      for (let i = 0; i < 42; i++) {
+        const dayNum = i - firstDay + 1;
+        const isCurrentMonth = dayNum > 0 && dayNum <= daysInMonth;
+        const cellDate = isCurrentMonth ? new Date(year, month, dayNum) : null;
+        const cellDateStr = cellDate ? formatDateForInput(cellDate) : '';
+        const isCellToday = isSameDate(cellDate, today);
+        const isSelected = isSameDate(cellDate, selectedDate);
+       
+        const holidayName = isCurrentMonth ? HOLIDAYS[cellDateStr] : null;
+        const isSunday = i % 7 === 0;
+        const isSaturday = i % 7 === 6;
+        const isRedDay = isCurrentMonth && (isSunday || holidayName);
+       
+        let cellClasses = `relative border-b border-r border-black/[0.03] transition-colors p-1.5 md:p-2 flex flex-col `;
+        if (!isCurrentMonth) cellClasses += `bg-[#F9F9FB] text-black/20 `;
+        else {
+          cellClasses += `bg-white hover:bg-[#F5F5F7]/50 cursor-pointer `;
+          if (isSelected) cellClasses += `ring-2 ring-inset ring-[#007AFF] z-10 bg-[#007AFF]/[0.02] rounded-[8px] border-transparent m-[-1px] `;
+        }
+
+        let cellContent = '';
+       
+        if (isCurrentMonth) {
+          const dayTasks = filtered.filter(t => t.startDate <= cellDateStr && t.endDate >= cellDateStr)
+                                   .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+          let numColorClass = 'text-[#1D1D1F]';
+          if (isCellToday) numColorClass = 'text-white';
+          else if (isRedDay) numColorClass = 'text-[#FF3B30]';
+          else if (isSaturday) numColorClass = 'text-[#007AFF]';
+
+          const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-7 h-7 flex items-center justify-center rounded-full shadow-[0_2px_8px_rgba(0,122,255,0.3)]">${dayNum}</span>` : dayNum;
+          const holidayLabel = holidayName ? `<span class="text-[10px] font-semibold text-[#FF3B30] truncate mt-0.5 ml-1">${holidayName}</span>` : '';
+
+          let tasksHtml = '<div class="flex flex-col gap-[3px] w-full mt-1">';
+          dayTasks.forEach(task => {
+            const team = TEAMS.find(t => t.id === task.teamId);
+            const focusStar = task.isFocus ? `★ ` : '';
+           
+            tasksHtml += `
+              <div
+                ondblclick="event.stopPropagation(); openEditTaskModal(${task.id})"
+                class="${team.bg} ${team.text} px-2 py-1 rounded-[6px] text-[11px] font-medium truncate transition-colors hover:opacity-80 border ${team.border} select-none"
+                title="${task.title} (${task.assignee}) - 더블 클릭하여 수정"
+              >
+                ${focusStar}${task.title}
+              </div>
+            `;
+          });
+          tasksHtml += '</div>';
+
+          cellContent = `
+            <div class="flex flex-col items-start min-h-[28px]">
+              <div class="text-[15px] md:text-[16px] font-medium ${numColorClass} flex items-center justify-center">${numDisplay}</div>
+              ${holidayLabel}
+            </div>
+            ${tasksHtml}
+          `;
+        } else {
+          cellContent = `
+            <div class="text-[15px] md:text-[16px] font-medium p-1">${dayNum > 0 ? dayNum : ''}</div>
+          `;
+        }
+
+        const onClickAttr = isCurrentMonth ? `onclick="handleDateClick('${cellDateStr}')" ondblclick="openModal(new Date('${cellDateStr}'))"` : '';
+        gridHtml += `<div class="${cellClasses}" ${onClickAttr}>${cellContent}</div>`;
+      }
+     
+      document.getElementById('calendar-grid').innerHTML = gridHtml;
+    }
+
+    // 3) 우측 상세 데일리 뷰 렌더링
+    function renderDailyFocus() {
+      const daysStr = ['일','월','화','수','목','금','토'];
+      const dateStr = formatDateForInput(selectedDate);
+      const isHoliday = HOLIDAYS[dateStr];
+      const isSun = selectedDate.getDay() === 0;
+      const isRed = isHoliday || isSun;
+     
+      let titleHtml = `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 ${daysStr[selectedDate.getDay()]}요일`;
+      if (isHoliday) titleHtml += ` <span class="text-[#FF3B30] ml-2 bg-[#FF3B30]/10 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold">${isHoliday}</span>`;
+     
+      const titleEl = document.getElementById('daily-focus-title');
+      titleEl.innerHTML = titleHtml;
+      if (isRed) titleEl.classList.replace('text-[#86868B]', 'text-[#FF3B30]');
+      else titleEl.classList.replace('text-[#FF3B30]', 'text-[#86868B]');
+
+      const filtered = getFilteredTasks();
+      const dayTasks = filtered.filter(t => t.startDate <= dateStr && t.endDate >= dateStr).sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+      let listHtml = '';
+     
+      if (dayTasks.length === 0) {
+        listHtml = `
+          <div class="h-full flex flex-col items-center justify-center text-[#86868B]">
+            <p class="font-medium text-[15px] text-[#1D1D1F]">일정 없음</p>
+            <p class="text-[13px] mt-1">이 날짜에 등록된 업무가 없습니다.</p>
+          </div>
+        `;
+      } else {
+        dayTasks.forEach(task => {
+          const team = TEAMS.find(t => t.id === task.teamId);
+          const isSection = task.type === 'section';
+
+          let descHtml = '';
+          if (task.description) {
+            descHtml = `<div class="mt-3 text-[13px] text-[#86868B] bg-white p-3 rounded-[12px] leading-relaxed font-normal whitespace-pre-wrap">${task.description}</div>`;
+          }
+
+          let locationHtml = '';
+          if (task.location) {
+            locationHtml = `<span class="flex items-center gap-1.5"><i data-feather="map-pin" class="w-3.5 h-3.5"></i> ${task.location}</span>`;
+          }
+         
+          const focusStarHtml = task.isFocus ? `<i data-feather="star" class="w-4 h-4 text-[#FF9500] fill-[#FF9500] mb-0.5"></i>` : '';
+
+          listHtml += `
+            <div ondblclick="openEditTaskModal(${task.id})" class="bg-white rounded-[20px] p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all cursor-pointer relative overflow-hidden group border border-black/[0.02] select-none" title="더블 클릭하여 수정">
+              <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: ${team.hex};"></div>
+              
+              <div class="pl-2.5">
+                <div class="flex items-start justify-between mb-1.5">
+                  <h4 class="font-semibold text-[#1D1D1F] text-[15px] leading-snug flex items-center gap-2">
+                    ${task.title} ${focusStarHtml}
+                  </h4>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-[6px] ${team.bg} ${team.text} whitespace-nowrap">${team.name}</span>
+                </div>
+               
+                <div class="flex flex-col gap-2 mt-2">
+                  <div class="flex items-center gap-3 text-[13px] font-medium text-[#86868B]">
+                    <span class="flex items-center gap-1.5"><i data-feather="clock" class="w-3.5 h-3.5"></i> ${task.startTime} ~ ${task.endTime}</span>
+                    ${locationHtml}
+                  </div>
+                 
+                  <div class="flex items-center gap-2 text-[13px] mt-1 font-medium text-[#1D1D1F]">
+                    <div class="w-5 h-5 rounded-full bg-[#F2F2F7] flex items-center justify-center text-[10px]"><i data-feather="${isSection ? 'users' : 'user'}" class="w-3 h-3 text-[#86868B]"></i></div>
+                    ${task.assignee} <span class="text-[#86868B] font-normal text-[12px]">(${isSection ? '과단위' : '개인'})</span>
+                  </div>
+                 
+                  ${descHtml}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+     
+      document.getElementById('daily-focus-list').innerHTML = listHtml;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* 5. 데이터 패치 및 동기화 (Data Fetch & Sync)                                  */
+    /* -------------------------------------------------------------------------- */
+    async function loadTasks() {
+      const loader = document.getElementById('initial-loader');
+      loader.classList.remove('hidden');
+      updateSyncStatus('loading');
+     
+      try {
+        const response = await fetch(`${GOOGLE_SHEET_API_URL}?action=get`, { redirect: 'follow' });
+        if (!response.ok) throw new Error('API 응답 오류');
+        const data = await response.json();
+       
+        tasks = Array.isArray(data) ? data : [];
+        updateSyncStatus('google');
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+        tasks = JSON.parse(localStorage.getItem('hd_dongban_tasks')) || [];
+        updateSyncStatus('error');
+        showToast('로컬 데이터를 불러옵니다.', 'error');
+      } finally {
+        loader.classList.add('hidden');
+        updateAll();
+      }
+    }
+
+    async function syncToServer() {
+      updateSyncStatus('loading');
+      localStorage.setItem('hd_dongban_tasks', JSON.stringify(tasks));
+     
+      try {
+        const response = await fetch(GOOGLE_SHEET_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'save', tasks: tasks }),
+          headers: { 'Content-Type': 'text/plain' },
+          redirect: 'follow'
+        });
+       
+        if (response.ok) {
+          updateSyncStatus('google');
+        } else {
+          throw new Error('서버 저장 실패');
+        }
+      } catch (error) {
+        updateSyncStatus('error');
+      }
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* 6. 사용자 이벤트 핸들러 (User Interaction Handlers)                            */
+    /* -------------------------------------------------------------------------- */
+    function handleSearch(val) { searchQuery = val; updateAll(); }
+    function setFilter(id) { filterTeam = id; updateAll(); }
+    function handleToday() { currentDate = new Date(); selectedDate = new Date(); updateAll(); }
+    function handlePrevMonth() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); updateAll(); }
+    function handleNextMonth() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); updateAll(); }
+    function handleDateClick(dateStr) { selectedDate = new Date(dateStr); updateAll(); }
+
+    /* -------------------------------------------------------------------------- */
+    /* 7. 모달 창 제어 로직 (Modal Control Logic)                                    */
+    /* -------------------------------------------------------------------------- */
+    function resetDeleteBtn() {
+      const btn = document.getElementById('btn_delete');
+      if (btn) {
+        btn.innerText = '삭제';
+        btn.className = 'px-5 py-3 rounded-full text-[15px] font-medium text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 transition-colors active:scale-95';
+      }
+    }
+
+    function handleTeamChange() {
+      const teamId = document.getElementById('f_teamId').value;
+      const assigneeInput = document.getElementById('f_assignee');
+      const asterisk = document.getElementById('assignee_asterisk');
+
+      if (teamId === 't5') { // 수석님 파트
+        assigneeInput.required = false;
+        if (asterisk) asterisk.style.display = 'none';
+      } else {
+        assigneeInput.required = true;
+        if (asterisk) asterisk.style.display = 'inline';
+      }
+    }
+
+    function openModal(dateObj = new Date()) {
+      currentEditTaskId = null;
+      document.getElementById('taskForm').reset();
+     
+      document.getElementById('modal-title').innerText = "새로운 일정";
+      document.getElementById('btn_submit').innerText = "추가";
+     
+      document.getElementById('f_startDate').value = formatDateForInput(dateObj);
+      document.getElementById('f_endDate').value = formatDateForInput(dateObj);
+      document.getElementById('f_isFocus').checked = false;
+     
+      document.getElementById('btn_delete').classList.add('hidden');
+      document.getElementById('taskModal').classList.remove('hidden');
+      document.getElementById('taskForm').scrollTop = 0;
+      isDeleteConfirming = false;
+      resetDeleteBtn();
+      handleTeamChange();
+    }
+
+    function openEditTaskModal(id) {
+      currentEditTaskId = id;
+      const task = tasks.find(x => x.id === id);
+      if(!task) return;
+
+      document.getElementById('modal-title').innerText = "일정 상세 및 편집";
+      document.getElementById('btn_submit').innerText = "저장";
+
+      const fields = ['title','type','teamId','assignee','location','startDate','endDate','startTime','endTime','description'];
+      fields.forEach(f => {
+        document.getElementById('f_' + f).value = task[f] || '';
+      });
+     
+      document.getElementById('f_isFocus').checked = !!task.isFocus;
+     
+      document.getElementById('btn_delete').classList.remove('hidden');
+      document.getElementById('taskModal').classList.remove('hidden');
+      document.getElementById('taskForm').scrollTop = 0;
+      isDeleteConfirming = false;
+      resetDeleteBtn();
+      handleTeamChange();
+    }
+
+    function closeModal() {
+      document.getElementById('taskModal').classList.add('hidden');
+    }
+
+    function handleTaskSubmit(e) {
+      e.preventDefault();
+      
+      let assigneeVal = document.getElementById('f_assignee').value;
+      const teamIdVal = document.getElementById('f_teamId').value;
+      
+      if (teamIdVal === 't5' && !assigneeVal.trim()) {
+        assigneeVal = '수석님';
+      }
+      
+      const formData = {
+        title: document.getElementById('f_title').value,
+        type: document.getElementById('f_type').value,
+        teamId: teamIdVal,
+        assignee: assigneeVal,
+        location: document.getElementById('f_location').value,
+        startDate: document.getElementById('f_startDate').value,
+        endDate: document.getElementById('f_endDate').value,
+        startTime: document.getElementById('f_startTime').value,
+        endTime: document.getElementById('f_endTime').value,
+        description: document.getElementById('f_description').value,
+        isFocus: document.getElementById('f_isFocus').checked
+      };
+
+      if (currentEditTaskId) {
+        const index = tasks.findIndex(x => x.id === currentEditTaskId);
+        if (index !== -1) tasks[index] = { ...tasks[index], ...formData };
+        showToast('일정이 수정되었습니다.', 'success');
+      } else {
+        tasks.push({ id: Date.now(), ...formData });
+        showToast('새로운 일정이 등록되었습니다.', 'success');
+      }
+
+      closeModal();
+      updateAll();
+      syncToServer();
+    }
+
+    function handleDeleteBtnClick() {
+      if (!isDeleteConfirming) {
+        isDeleteConfirming = true;
+        const btn = document.getElementById('btn_delete');
+        btn.innerText = "정말 삭제할까요?";
+        btn.className = "px-5 py-3 rounded-full text-[15px] font-semibold text-white bg-[#FF3B30] hover:bg-[#D70015] transition-colors active:scale-95";
+        
+        setTimeout(() => {
+          if (isDeleteConfirming && !document.getElementById('taskModal').classList.contains('hidden')) {
+            isDeleteConfirming = false;
+            resetDeleteBtn();
+          }
+        }, 3000);
+        return;
+      }
+     
+      tasks = tasks.filter(x => x.id !== currentEditTaskId);
+      closeModal();
+      updateAll();
+      syncToServer();
+      showToast('일정이 삭제되었습니다.', 'success');
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* 8. 앱 초기화 (Initialization)                                                 */
+    /* -------------------------------------------------------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      const selectEl = document.getElementById('f_teamId');
+      TEAMS.forEach(team => {
+        selectEl.add(new Option(team.name, team.id));
+      });
+     
+      loadTasks();
+    });
+  </script>
+</body>
+</html>
