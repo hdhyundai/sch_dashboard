@@ -84,7 +84,7 @@
         <div class="flex items-center gap-2 mt-0.5">
           <p class="text-[13px] text-[#48484A] font-semibold">통합 업무 워크스페이스</p>
           <div id="sync-status" class="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E5E5EA] text-[#3A3A3C] cursor-help transition-all border border-gray-300" title="데이터 동기화 상태">
-            <i data-feather="database" class="w-3 h-3"></i> 로컬 모드
+            <i data-feather="loader" class="w-3 h-3 spin-slow"></i> 연결 중...
           </div>
         </div>
       </div>
@@ -100,13 +100,13 @@
           type="text"
           placeholder="검색"
           class="w-full md:w-56 lg:w-64 pl-10 pr-4 py-2 bg-gray-100 hover:bg-gray-200 focus:bg-white border border-gray-300 focus:border-[#007AFF] rounded-[10px] text-[15px] transition-all focus:outline-none focus:ring-4 focus:ring-[#007AFF]/10 placeholder:text-[#636366] font-semibold"
-          oninput="handleSearch(this.value)"
+          oninput="window.handleSearch(this.value)"
         />
       </div>
 
       <!-- 엑셀 다운로드 버튼 -->
       <button
-        onclick="exportToCSV()"
+        onclick="window.exportToCSV()"
         class="bg-white hover:bg-gray-100 border border-gray-300 text-[#1D1D1F] active:scale-95 px-3.5 py-2 rounded-full text-[14px] font-bold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-sm"
         title="현재 일정을 엑셀(CSV) 파일로 다운로드합니다."
       >
@@ -116,7 +116,7 @@
 
       <!-- 일정 추가 버튼 -->
       <button
-        onclick="openModal()"
+        onclick="window.openModal()"
         class="bg-[#007AFF] hover:bg-[#0062CC] active:scale-95 text-white px-4 md:px-5 py-2 rounded-full text-[14px] font-bold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-[0_4px_12px_rgba(0,122,255,0.25)]"
       >
         <i data-feather="plus" class="w-4 h-4"></i>
@@ -129,14 +129,14 @@
   <main class="flex-1 p-4 md:p-6 lg:p-8 flex flex-col xl:flex-row gap-6 max-w-[1800px] mx-auto w-full h-full min-h-0 relative">
    
     <!-- 최초 로딩 오버레이 -->
-    <div id="initial-loader" class="absolute inset-0 bg-[#F5F5F7]/80 backdrop-blur-xl z-50 flex items-center justify-center rounded-[32px] transition-opacity duration-300 hidden">
+    <div id="initial-loader" class="absolute inset-0 bg-[#F5F5F7]/80 backdrop-blur-xl z-50 flex items-center justify-center rounded-[32px] transition-opacity duration-300">
       <div class="flex flex-col items-center gap-5 bg-white p-8 rounded-[28px] shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-200">
         <div class="p-4 bg-[#007AFF]/10 rounded-full">
           <i data-feather="loader" class="w-8 h-8 text-[#007AFF] spin-slow"></i>
         </div>
         <div class="text-center">
-          <p class="font-bold text-[#1D1D1F] text-[18px]">워크스페이스 연결 중</p>
-          <p class="text-[14px] text-[#48484A] mt-1.5 font-medium">클라우드 데이터를 동기화하고 있습니다.</p>
+          <p class="font-bold text-[#1D1D1F] text-[18px]">실시간 서버 연결 중</p>
+          <p class="text-[14px] text-[#48484A] mt-1.5 font-medium">클라우드 데이터베이스와 동기화하고 있습니다.</p>
         </div>
       </div>
     </div>
@@ -173,19 +173,19 @@
       <div class="bg-white rounded-[28px] shadow-sm flex-1 flex flex-col overflow-hidden min-h-0 border border-gray-300">
         <div class="grid grid-cols-3 items-center p-4 md:p-5 border-b border-gray-200 min-h-[70px] shrink-0 bg-white">
           <div class="flex justify-start">
-            <button onclick="handleToday()" class="px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">
+            <button onclick="window.handleToday()" class="px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">
               오늘
             </button>
           </div>
 
           <div class="flex items-center justify-center gap-4">
-            <button onclick="handlePrevMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
+            <button onclick="window.handlePrevMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
               <i data-feather="chevron-left" class="w-5 h-5"></i>
             </button>
             <h2 id="calendar-title" class="text-[20px] md:text-[22px] font-bold text-[#1D1D1F] tracking-tight min-w-[140px] text-center whitespace-nowrap">
               <!-- JS 주입 -->
             </h2>
-            <button onclick="handleNextMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
+            <button onclick="window.handleNextMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
               <i data-feather="chevron-right" class="w-5 h-5"></i>
             </button>
           </div>
@@ -227,7 +227,7 @@
           </p>
         </div>
         <button
-          onclick="openModal(selectedDate)"
+          onclick="window.openModal(window.selectedDate)"
           class="p-2 bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-gray-300 text-[#007AFF] rounded-full transition-colors active:scale-95"
           title="선택한 날짜에 새로운 일정을 추가합니다."
         >
@@ -251,18 +251,18 @@
         <div>
           <h3 id="modal-title" class="text-[20px] font-bold text-[#1D1D1F] tracking-tight">새로운 일정</h3>
         </div>
-        <button onclick="closeModal()" class="p-2 text-[#48484A] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] border border-gray-200 rounded-full transition-colors focus:outline-none">
+        <button onclick="window.closeModal()" class="p-2 text-[#48484A] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] border border-gray-200 rounded-full transition-colors focus:outline-none">
           <i data-feather="x" class="w-4 h-4"></i>
         </button>
       </div>
      
       <!-- 모달 폼 -->
-      <form id="taskForm" onsubmit="handleTaskSubmit(event)" class="p-6 overflow-y-auto space-y-6 bg-white no-scrollbar">
+      <form id="taskForm" onsubmit="window.handleTaskSubmit(event)" class="p-6 overflow-y-auto space-y-6 bg-white no-scrollbar">
        
         <!-- 제목 및 중요도 -->
         <div class="flex flex-col gap-3">
           <input id="f_title" required type="text" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[17px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="일정 제목" />
-          
+         
           <label class="flex items-center gap-2 cursor-pointer w-fit pl-1 mt-1">
             <input type="checkbox" id="f_isFocus" class="w-4 h-4 text-[#FF9500] rounded-[4px] border-gray-400 focus:ring-[#FF9500] cursor-pointer">
             <span class="text-[14px] font-bold text-[#1D1D1F] flex items-center gap-1.5">
@@ -284,7 +284,7 @@
           </div>
           <div>
             <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">소속 파트 <span class="text-[#FF3B30]">*</span></label>
-            <select id="f_teamId" onchange="handleTeamChange()" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
+            <select id="f_teamId" onchange="window.handleTeamChange()" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
               <!-- JS 주입 -->
             </select>
           </div>
@@ -337,7 +337,7 @@
 
         <!-- 하단 컨트롤 버튼 -->
         <div class="pt-2 flex justify-between gap-3 items-center">
-          <button type="button" id="btn_delete" onclick="handleDeleteBtnClick()" class="hidden px-5 py-3 rounded-full text-[15px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 border border-transparent hover:border-[#FF3B30]/30 transition-colors active:scale-95">삭제</button>
+          <button type="button" id="btn_delete" onclick="window.handleDeleteBtnClick()" class="hidden px-5 py-3 rounded-full text-[15px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 border border-transparent hover:border-[#FF3B30]/30 transition-colors active:scale-95">삭제</button>
           <div class="flex gap-3 ml-auto">
             <button type="submit" id="btn_submit" class="px-8 py-3 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-full text-[15px] font-bold shadow-[0_4px_12px_rgba(0,122,255,0.3)] transition-all active:scale-95 border border-transparent">저장</button>
           </div>
@@ -347,14 +347,16 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- JavaScript: 비즈니스 로직 및 컴포넌트 제어 -->
+  <!-- JavaScript: Firebase & 비즈니스 로직 -->
   <!-- ========================================== -->
-  <script>
-    /* -------------------------------------------------------------------------- */
-    /* 1. 환경 설정 및 상수 정의 (Configuration & Constants)                          */
-    /* -------------------------------------------------------------------------- */
-    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzEwdXj0m7FcW5RGHtfAaEiIGo5hqZGQ9rQjoEmNjZUUccpURKg40hp5LEe6Vw0EB9ojw/exec";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    /* -------------------------------------------------------------------------- */
+    /* 1. 환경 설정 및 상수 정의                                                  */
+    /* -------------------------------------------------------------------------- */
     const TEAMS = [
       { id: 't5', name: '수석님', text: 'text-[#FF3B30]', bg: 'bg-[#FF3B30]/15', border: 'border-[#FF3B30]/30', hex: '#FF3B30' },
       { id: 't1', name: '기획과', text: 'text-[#007AFF]', bg: 'bg-[#007AFF]/15', border: 'border-[#007AFF]/30', hex: '#007AFF' },
@@ -367,32 +369,89 @@
       "2025-01-01": "신정", "2025-01-28": "설날 연휴", "2025-01-29": "설날", "2025-01-30": "설날 연휴",
       "2025-03-01": "3·1절", "2025-03-03": "대체공휴일", "2025-05-05": "어린이날", "2025-05-06": "대체공휴일",
       "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절", "2025-10-05": "추석 연휴",
-      "2025-10-06": "추석", "2025-10-07": "추석 연휴", "2025-10-08": "대체공휴일", "2025-10-09": "한글날", "2025-12-25": "성탄절",
-      "2026-01-01": "신정", "2026-01-02": "회사휴무",
-      "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴", "2026-02-19": "대체휴가",
-      "2026-03-01": "3·1절", "2026-03-02": "대체공휴일",
-      "2026-05-05": "어린이날", "2026-05-24": "부처님오신날", "2026-05-25": "대체공휴일",
-      "2026-06-03": "지방선거일", "2026-06-06": "현충일",
-      "2026-08-03": "하기휴가", "2026-08-04": "하기휴가", "2026-08-05": "하기휴가", "2026-08-06": "하기휴가", "2026-08-07": "하기휴가", "2026-08-08": "하기휴가", "2026-08-09": "하기휴가", "2026-08-10": "하기휴가", "2026-08-11": "하기휴가", "2026-08-12": "하기휴가", "2026-08-13": "하기휴가", "2026-08-14": "하기휴가",
-      "2026-08-15": "광복절",
-      "2026-09-24": "추석 연휴", "2026-09-25": "추석", "2026-09-26": "추석 연휴", "2026-09-27": "대체공휴일", "2026-09-28": "대체휴가",
-      "2026-10-03": "개천절", "2026-10-09": "한글날", "2026-10-27": "창립기념일",
-      "2026-12-25": "기독탄신일"
+      "2025-10-06": "추석", "2025-10-07": "추석 연휴", "2025-10-08": "대체공휴일", "2025-10-09": "한글날", "2025-12-25": "성탄절"
     };
 
     /* -------------------------------------------------------------------------- */
-    /* 2. 전역 상태 관리 (Global State)                                             */
+    /* 2. 전역 상태 관리                                                          */
     /* -------------------------------------------------------------------------- */
     let tasks = [];
     let currentDate = new Date();
-    let selectedDate = new Date();
+    window.selectedDate = new Date(); // 모달 오픈시 참조 가능하도록 window 등록
     let filterTeam = 'all';
     let searchQuery = '';
     let currentEditTaskId = null;
     let isDeleteConfirming = false;
 
     /* -------------------------------------------------------------------------- */
-    /* 3. 유틸리티 함수 (Helper Functions)                                          */
+    /* 3. Firebase 설정 및 초기화                                                */
+    /* -------------------------------------------------------------------------- */
+    const firebaseConfig = {
+      apiKey: "AIzaSyDw_WQxhF_07Hjhmgb_rfGuOqAE7lDvw00",
+      authDomain: "hd-workspace.firebaseapp.com",
+      projectId: "hd-workspace",
+      storageBucket: "hd-workspace.firebasestorage.app",
+      messagingSenderId: "105147883492",
+      appId: "1:105147883492:web:278e38487300447e4a31f1"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    
+    let currentUser = null;
+    let unsubscribeTasks = null;
+    let isFirstLoad = true;
+
+    const initAuth = async () => {
+      try {
+        // 커스텀 Firebase 프로젝트를 사용하므로, 플랫폼 토큰 확인 과정을 제거하고 익명 로그인만 사용합니다.
+        await signInAnonymously(auth);
+      } catch (error) {
+        console.error("Auth init error:", error);
+        updateSyncStatus('error');
+        document.getElementById('initial-loader').classList.add('hidden');
+      }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        setupRealtimeSync();
+      } else {
+        if (unsubscribeTasks) unsubscribeTasks();
+      }
+    });
+
+    const setupRealtimeSync = () => {
+      if (!currentUser) return;
+      updateSyncStatus('loading');
+      
+      const tasksCol = collection(db, 'artifacts', appId, 'public', 'data', 'workspace_tasks');
+      
+      unsubscribeTasks = onSnapshot(tasksCol, (snapshot) => {
+        const fetchedTasks = [];
+        snapshot.forEach(doc => {
+          fetchedTasks.push({ id: doc.id, ...doc.data() });
+        });
+        
+        tasks = fetchedTasks;
+        updateSyncStatus('firebase');
+        
+        if (isFirstLoad) {
+            document.getElementById('initial-loader').classList.add('hidden');
+            isFirstLoad = false;
+        }
+        updateAll();
+      }, (error) => {
+        console.error("Firestore Snapshot error:", error);
+        updateSyncStatus('error');
+        if (isFirstLoad) document.getElementById('initial-loader').classList.add('hidden');
+      });
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /* 4. 유틸리티 함수                                                           */
     /* -------------------------------------------------------------------------- */
     const formatDateForInput = (date) => {
       const y = date.getFullYear();
@@ -428,9 +487,8 @@
     };
 
     /* -------------------------------------------------------------------------- */
-    /* 4. UI 제어 및 렌더링 로직 (UI Rendering)                                     */
+    /* 5. UI 제어 및 렌더링 로직                                                  */
     /* -------------------------------------------------------------------------- */
-
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -455,7 +513,7 @@
       }, 3000);
     }
 
-    function exportToCSV() {
+    window.exportToCSV = function() {
       if (tasks.length === 0) {
         showToast('다운로드할 데이터가 없습니다.', 'error');
         return;
@@ -491,17 +549,14 @@
       const statusEl = document.getElementById('sync-status');
       const statusConfig = {
         loading: { html: `<i data-feather="refresh-cw" class="w-3 h-3 spin-slow"></i> 통신 중`, classes: "bg-[#007AFF]/10 text-[#007AFF]" },
-        google: { html: `<i data-feather="cloud" class="w-3 h-3"></i> 동기화됨`, classes: "bg-[#34C759]/10 text-[#34C759]" },
-        error: { html: `<i data-feather="alert-circle" class="w-3 h-3"></i> 연결 실패`, classes: "bg-[#FF3B30]/10 text-[#FF3B30] cursor-pointer" },
-        local: { html: `<i data-feather="hard-drive" class="w-3 h-3"></i> 로컬 모드`, classes: "bg-[#E5E5EA] text-[#3A3A3C]" }
+        firebase: { html: `<i data-feather="zap" class="w-3 h-3 fill-current"></i> 실시간 연동 중`, classes: "bg-[#34C759]/10 text-[#34C759]" },
+        error: { html: `<i data-feather="alert-circle" class="w-3 h-3"></i> 연결 실패`, classes: "bg-[#FF3B30]/10 text-[#FF3B30] cursor-pointer" }
       };
 
-      const cur = statusConfig[mode] || statusConfig.local;
+      const cur = statusConfig[mode];
+      if(!cur) return;
       statusEl.innerHTML = cur.html;
       statusEl.className = `flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full transition-all border border-gray-300 ${cur.classes}`;
-     
-      if(mode === 'error') statusEl.onclick = () => alert('클라우드 연결 오류.\n로컬 저장소에 임시 보관 중입니다.');
-      else statusEl.onclick = null;
       feather.replace();
     }
 
@@ -512,16 +567,14 @@
       feather.replace();
     }
 
-    // 1) 좌측 상단 대시보드 렌더링
     function renderDashboard() {
       const filtered = getFilteredTasks();
      
-      let filterHtml = `<button onclick="setFilter('all')" class="px-3 py-2 rounded-[12px] text-[14px] font-bold transition-all border ${filterTeam === 'all' ? 'bg-white text-[#1D1D1F] border-gray-300 shadow-sm' : 'text-[#48484A] border-transparent hover:text-[#1D1D1F] hover:bg-gray-100'}">전체 보기</button>`;
-      
-      // 요청에 따른 순서 배치를 위해 TEAMS 배열을 순회 (순서: 수석, 기획, 지원, 인력, 협력)
+      let filterHtml = `<button onclick="window.setFilter('all')" class="px-3 py-2 rounded-[12px] text-[14px] font-bold transition-all border ${filterTeam === 'all' ? 'bg-white text-[#1D1D1F] border-gray-300 shadow-sm' : 'text-[#48484A] border-transparent hover:text-[#1D1D1F] hover:bg-gray-100'}">전체 보기</button>`;
+     
       TEAMS.forEach(team => {
         const isActive = filterTeam === team.id;
-        filterHtml += `<button onclick="setFilter('${team.id}')" class="px-3 py-2 rounded-[12px] text-[14px] font-bold transition-all border ${isActive ? 'bg-white text-[#1D1D1F] border-gray-300 shadow-sm' : 'text-[#48484A] border-transparent hover:text-[#1D1D1F] hover:bg-gray-100'}">${team.name.substring(0,team.name.length)}</button>`;
+        filterHtml += `<button onclick="window.setFilter('${team.id}')" class="px-3 py-2 rounded-[12px] text-[14px] font-bold transition-all border ${isActive ? 'bg-white text-[#1D1D1F] border-gray-300 shadow-sm' : 'text-[#48484A] border-transparent hover:text-[#1D1D1F] hover:bg-gray-100'}">${team.name}</button>`;
       });
       document.getElementById('filter-buttons').innerHTML = filterHtml;
 
@@ -541,7 +594,7 @@
           const dateRangeBadge = formatTaskDateRange(task.startDate, task.endDate);
 
           keyTasksHtml += `
-            <div ondblclick="openEditTaskModal(${task.id})" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-white hover:bg-[#F2F2F7] border border-gray-300 shadow-sm select-none" title="더블 클릭하여 수정">
+            <div ondblclick="window.openEditTaskModal('${task.id}')" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-white hover:bg-[#F2F2F7] border border-gray-300 shadow-sm select-none" title="더블 클릭하여 수정">
               <span class="text-[11px] font-bold text-[#1D1D1F] bg-[#F2F2F7] px-2 py-0.5 rounded-[6px] border border-gray-200">${dateRangeBadge}</span>
               <div class="w-2 h-2 rounded-full" style="background-color: ${team.hex};"></div>
               <span class="font-bold text-[#1D1D1F] truncate max-w-[150px]">${task.title}</span>
@@ -552,7 +605,6 @@
       document.getElementById('key-tasks-container').innerHTML = keyTasksHtml;
     }
 
-    // 2) 중앙 캘린더 그리드 렌더링
     function renderCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
@@ -577,7 +629,7 @@
         const cellDate = isCurrentMonth ? new Date(year, month, dayNum) : null;
         const cellDateStr = cellDate ? formatDateForInput(cellDate) : '';
         const isCellToday = isSameDate(cellDate, today);
-        const isSelected = isSameDate(cellDate, selectedDate);
+        const isSelected = isSameDate(cellDate, window.selectedDate);
        
         const holidayName = isCurrentMonth ? HOLIDAYS[cellDateStr] : null;
         const isSunday = i % 7 === 0;
@@ -608,26 +660,24 @@
           const visibleTasks = dayTasks.slice(0, 5);
           const remainingCount = dayTasks.length - 5;
 
-          // 첫 번째 업무
           let task1Html = '';
           if (visibleTasks[0]) {
             const t = visibleTasks[0];
             const team = TEAMS.find(x => x.id === t.teamId);
             task1Html = `
-              <div ondblclick="event.stopPropagation(); openEditTaskModal(${t.id})" class="flex-1 min-w-0 ${team.bg} ${team.text} px-1.5 py-0.5 rounded-[4px] text-[10px] md:text-[11px] font-bold truncate border ${team.border}" title="${t.title}">
+              <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')" class="flex-1 min-w-0 ${team.bg} ${team.text} px-1.5 py-0.5 rounded-[4px] text-[10px] md:text-[11px] font-bold truncate border ${team.border}" title="${t.title}">
                 ${t.title}
               </div>
             `;
           }
 
-          // 나머지 업무
           let subTasksHtml = '';
           if (visibleTasks.length > 1) {
             subTasksHtml = '<div class="grid grid-cols-2 gap-1 mt-1">';
             visibleTasks.slice(1).forEach(t => {
               const team = TEAMS.find(x => x.id === t.teamId);
               subTasksHtml += `
-                <div ondblclick="event.stopPropagation(); openEditTaskModal(${t.id})" class="${team.bg} ${team.text} px-1 py-0.5 rounded-[4px] text-[9px] md:text-[10px] font-bold truncate border ${team.border}" title="${t.title}">
+                <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')" class="${team.bg} ${team.text} px-1 py-0.5 rounded-[4px] text-[9px] md:text-[10px] font-bold truncate border ${team.border}" title="${t.title}">
                   ${t.title}
                 </div>
               `;
@@ -647,27 +697,24 @@
             ${moreHtml}
           `;
         } else {
-          cellContent = `
-            <div class="text-[14px] md:text-[15px] font-bold p-1">${dayNum > 0 ? dayNum : ''}</div>
-          `;
+          cellContent = `<div class="text-[14px] md:text-[15px] font-bold p-1">${dayNum > 0 ? dayNum : ''}</div>`;
         }
 
-        const onClickAttr = isCurrentMonth ? `onclick="handleDateClick('${cellDateStr}')" ondblclick="openModal(new Date('${cellDateStr}'))"` : '';
+        const onClickAttr = isCurrentMonth ? `onclick="window.handleDateClick('${cellDateStr}')" ondblclick="window.openModal(new Date('${cellDateStr}'))"` : '';
         gridHtml += `<div class="${cellClasses}" ${onClickAttr}>${cellContent}</div>`;
       }
      
       document.getElementById('calendar-grid').innerHTML = gridHtml;
     }
 
-    // 3) 우측 상세 데일리 뷰 렌더링
     function renderDailyFocus() {
       const daysStr = ['일','월','화','수','목','금','토'];
-      const dateStr = formatDateForInput(selectedDate);
+      const dateStr = formatDateForInput(window.selectedDate);
       const isHoliday = HOLIDAYS[dateStr];
-      const isSun = selectedDate.getDay() === 0;
+      const isSun = window.selectedDate.getDay() === 0;
       const isRed = isHoliday || isSun;
      
-      let titleHtml = `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 ${daysStr[selectedDate.getDay()]}요일`;
+      let titleHtml = `${window.selectedDate.getMonth() + 1}월 ${window.selectedDate.getDate()}일 ${daysStr[window.selectedDate.getDay()]}요일`;
       if (isHoliday) titleHtml += ` <span class="text-[#FF3B30] ml-2 bg-[#FF3B30]/10 px-2 py-0.5 rounded-[6px] text-[11px] font-bold border border-[#FF3B30]/20">${isHoliday}</span>`;
      
       const titleEl = document.getElementById('daily-focus-title');
@@ -705,9 +752,9 @@
           const focusStarHtml = task.isFocus ? `<i data-feather="star" class="w-4 h-4 text-[#FF9500] fill-[#FF9500] mb-0.5"></i>` : '';
 
           listHtml += `
-            <div ondblclick="openEditTaskModal(${task.id})" class="bg-white rounded-[20px] p-4 shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden group border border-gray-300 select-none" title="더블 클릭하여 수정">
+            <div ondblclick="window.openEditTaskModal('${task.id}')" class="bg-white rounded-[20px] p-4 shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden group border border-gray-300 select-none" title="더블 클릭하여 수정">
               <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: ${team.hex};"></div>
-              
+             
               <div class="pl-2.5">
                 <div class="flex items-start justify-between mb-1.5">
                   <h4 class="font-bold text-[#1D1D1F] text-[15px] leading-snug flex items-center gap-2">
@@ -739,65 +786,17 @@
     }
 
     /* -------------------------------------------------------------------------- */
-    /* 5. 데이터 패치 및 동기화 (Data Fetch & Sync)                                  */
+    /* 6. 사용자 이벤트 핸들러 (전역 window 바인딩)                                */
     /* -------------------------------------------------------------------------- */
-    async function loadTasks() {
-      const loader = document.getElementById('initial-loader');
-      loader.classList.remove('hidden');
-      updateSyncStatus('loading');
-     
-      try {
-        const response = await fetch(`${GOOGLE_SHEET_API_URL}?action=get`, { redirect: 'follow' });
-        if (!response.ok) throw new Error('API 응답 오류');
-        const data = await response.json();
-       
-        tasks = Array.isArray(data) ? data : [];
-        updateSyncStatus('google');
-      } catch (error) {
-        console.error("데이터 로드 실패:", error);
-        tasks = JSON.parse(localStorage.getItem('hd_dongban_tasks')) || [];
-        updateSyncStatus('error');
-        showToast('로컬 데이터를 불러옵니다.', 'error');
-      } finally {
-        loader.classList.add('hidden');
-        updateAll();
-      }
-    }
-
-    async function syncToServer() {
-      updateSyncStatus('loading');
-      localStorage.setItem('hd_dongban_tasks', JSON.stringify(tasks));
-     
-      try {
-        const response = await fetch(GOOGLE_SHEET_API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'save', tasks: tasks }),
-          headers: { 'Content-Type': 'text/plain' },
-          redirect: 'follow'
-        });
-       
-        if (response.ok) {
-          updateSyncStatus('google');
-        } else {
-          throw new Error('서버 저장 실패');
-        }
-      } catch (error) {
-        updateSyncStatus('error');
-      }
-    }
+    window.handleSearch = function(val) { searchQuery = val; updateAll(); };
+    window.setFilter = function(id) { filterTeam = id; updateAll(); };
+    window.handleToday = function() { currentDate = new Date(); window.selectedDate = new Date(); updateAll(); };
+    window.handlePrevMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); updateAll(); };
+    window.handleNextMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); updateAll(); };
+    window.handleDateClick = function(dateStr) { window.selectedDate = new Date(dateStr); updateAll(); };
 
     /* -------------------------------------------------------------------------- */
-    /* 6. 사용자 이벤트 핸들러 (User Interaction Handlers)                            */
-    /* -------------------------------------------------------------------------- */
-    function handleSearch(val) { searchQuery = val; updateAll(); }
-    function setFilter(id) { filterTeam = id; updateAll(); }
-    function handleToday() { currentDate = new Date(); selectedDate = new Date(); updateAll(); }
-    function handlePrevMonth() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); updateAll(); }
-    function handleNextMonth() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); updateAll(); }
-    function handleDateClick(dateStr) { selectedDate = new Date(dateStr); updateAll(); }
-
-    /* -------------------------------------------------------------------------- */
-    /* 7. 모달 창 제어 로직 (Modal Control Logic)                                    */
+    /* 7. 모달 창 및 데이터 CUD 제어 로직                                         */
     /* -------------------------------------------------------------------------- */
     function resetDeleteBtn() {
       const btn = document.getElementById('btn_delete');
@@ -807,12 +806,12 @@
       }
     }
 
-    function handleTeamChange() {
+    window.handleTeamChange = function() {
       const teamId = document.getElementById('f_teamId').value;
       const assigneeInput = document.getElementById('f_assignee');
       const asterisk = document.getElementById('assignee_asterisk');
 
-      if (teamId === 't5') { // 수석님 파트
+      if (teamId === 't5') {
         assigneeInput.required = false;
         if (asterisk) asterisk.style.display = 'none';
       } else {
@@ -821,7 +820,7 @@
       }
     }
 
-    function openModal(dateObj = new Date()) {
+    window.openModal = function(dateObj = new Date()) {
       currentEditTaskId = null;
       document.getElementById('taskForm').reset();
      
@@ -837,10 +836,10 @@
       document.getElementById('taskForm').scrollTop = 0;
       isDeleteConfirming = false;
       resetDeleteBtn();
-      handleTeamChange();
+      window.handleTeamChange();
     }
 
-    function openEditTaskModal(id) {
+    window.openEditTaskModal = function(id) {
       currentEditTaskId = id;
       const task = tasks.find(x => x.id === id);
       if(!task) return;
@@ -860,23 +859,28 @@
       document.getElementById('taskForm').scrollTop = 0;
       isDeleteConfirming = false;
       resetDeleteBtn();
-      handleTeamChange();
+      window.handleTeamChange();
     }
 
-    function closeModal() {
+    window.closeModal = function() {
       document.getElementById('taskModal').classList.add('hidden');
     }
 
-    function handleTaskSubmit(e) {
+    window.handleTaskSubmit = async function(e) {
       e.preventDefault();
       
+      if (!currentUser) {
+        showToast('인증 정보가 확인되지 않았습니다. 잠시 후 다시 시도해주세요.', 'error');
+        return;
+      }
+
       let assigneeVal = document.getElementById('f_assignee').value;
       const teamIdVal = document.getElementById('f_teamId').value;
-      
+     
       if (teamIdVal === 't5' && !assigneeVal.trim()) {
         assigneeVal = '수석님';
       }
-      
+     
       const formData = {
         title: document.getElementById('f_title').value,
         type: document.getElementById('f_type').value,
@@ -891,27 +895,30 @@
         isFocus: document.getElementById('f_isFocus').checked
       };
 
-      if (currentEditTaskId) {
-        const index = tasks.findIndex(x => x.id === currentEditTaskId);
-        if (index !== -1) tasks[index] = { ...tasks[index], ...formData };
-        showToast('일정이 수정되었습니다.', 'success');
-      } else {
-        tasks.push({ id: Date.now(), ...formData });
-        showToast('새로운 일정이 등록되었습니다.', 'success');
-      }
+      const taskId = currentEditTaskId || Date.now().toString();
+      const taskRef = doc(db, 'artifacts', appId, 'public', 'data', 'workspace_tasks', taskId);
 
-      closeModal();
-      updateAll();
-      syncToServer();
+      try {
+        await setDoc(taskRef, { ...formData, id: taskId });
+        if (currentEditTaskId) {
+            showToast('일정이 성공적으로 수정되었습니다.', 'success');
+        } else {
+            showToast('새로운 실시간 일정이 등록되었습니다.', 'success');
+        }
+        window.closeModal();
+      } catch (error) {
+        console.error("저장 실패:", error);
+        showToast('클라우드 저장소와의 연결 오류로 저장에 실패했습니다.', 'error');
+      }
     }
 
-    function handleDeleteBtnClick() {
+    window.handleDeleteBtnClick = async function() {
       if (!isDeleteConfirming) {
         isDeleteConfirming = true;
         const btn = document.getElementById('btn_delete');
         btn.innerText = "정말 삭제할까요?";
         btn.className = "px-5 py-3 rounded-full text-[15px] font-bold text-white bg-[#FF3B30] hover:bg-[#D70015] border border-transparent transition-colors active:scale-95";
-        
+       
         setTimeout(() => {
           if (isDeleteConfirming && !document.getElementById('taskModal').classList.contains('hidden')) {
             isDeleteConfirming = false;
@@ -921,23 +928,28 @@
         return;
       }
      
-      tasks = tasks.filter(x => x.id !== currentEditTaskId);
-      closeModal();
-      updateAll();
-      syncToServer();
-      showToast('일정이 삭제되었습니다.', 'success');
+      if (!currentUser || !currentEditTaskId) return;
+
+      const taskRef = doc(db, 'artifacts', appId, 'public', 'data', 'workspace_tasks', currentEditTaskId);
+      try {
+          await deleteDoc(taskRef);
+          showToast('일정이 실시간 동기화되어 삭제되었습니다.', 'success');
+          window.closeModal();
+      } catch (error) {
+          console.error("삭제 실패:", error);
+          showToast('삭제 중 오류가 발생했습니다.', 'error');
+      }
     }
 
     /* -------------------------------------------------------------------------- */
-    /* 8. 앱 초기화 (Initialization)                                                 */
+    /* 8. 앱 초기화 실행                                                          */
     /* -------------------------------------------------------------------------- */
     document.addEventListener('DOMContentLoaded', () => {
       const selectEl = document.getElementById('f_teamId');
       TEAMS.forEach(team => {
         selectEl.add(new Option(team.name, team.id));
       });
-     
-      loadTasks();
+      initAuth();
     });
   </script>
 </body>
