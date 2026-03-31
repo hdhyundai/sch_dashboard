@@ -24,11 +24,11 @@
       background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.2);
       border-radius: 10px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.3);
     }
    
     .no-scrollbar::-webkit-scrollbar {
@@ -64,13 +64,13 @@
     }
   </style>
 </head>
-<body class="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col relative selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Pretendard', system-ui, sans-serif;">
+<body class="min-h-screen bg-[#F2F2F7] text-[#1D1D1F] flex flex-col relative selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Pretendard', system-ui, sans-serif;">
 
   <!-- 토스트 알림 컨테이너 -->
   <div id="toast-container" class="fixed bottom-8 right-8 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
   <!-- --- [Header Area] --- -->
-  <header class="sticky top-0 z-40 bg-[#F5F5F7]/80 backdrop-blur-xl border-b border-black/[0.05] px-5 md:px-10 py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all">
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-300 px-5 md:px-10 py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all">
    
     <!-- 로고 및 타이틀 -->
     <div class="flex items-center gap-3.5 w-full md:w-auto">
@@ -78,12 +78,12 @@
         <i data-feather="calendar" class="text-white w-5 h-5"></i>
       </div>
       <div class="flex flex-col justify-center">
-        <h1 class="text-[17px] md:text-[19px] font-semibold tracking-tight text-[#1D1D1F] leading-tight">
+        <h1 class="text-[17px] md:text-[19px] font-bold tracking-tight text-[#1D1D1F] leading-tight">
           HD현대삼호 동반성장부
         </h1>
         <div class="flex items-center gap-2 mt-0.5">
-          <p class="text-[13px] text-[#86868B] font-medium">통합 업무 워크스페이스</p>
-          <div id="sync-status" class="flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#E5E5EA] text-[#86868B] cursor-help transition-all" title="데이터 동기화 상태">
+          <p class="text-[13px] text-[#48484A] font-semibold">통합 업무 워크스페이스</p>
+          <div id="sync-status" class="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E5E5EA] text-[#3A3A3C] cursor-help transition-all border border-gray-300" title="데이터 동기화 상태">
             <i data-feather="database" class="w-3 h-3"></i> 로컬 모드
           </div>
         </div>
@@ -94,12 +94,12 @@
     <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto">
       <!-- 검색창 -->
       <div class="relative flex-1 md:flex-none">
-        <i data-feather="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868B]"></i>
+        <i data-feather="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#48484A]"></i>
         <input
           id="searchInput"
           type="text"
           placeholder="검색"
-          class="w-full md:w-56 lg:w-64 pl-10 pr-4 py-2 bg-black/[0.05] hover:bg-black/[0.08] focus:bg-white border-transparent focus:border-[#007AFF] rounded-[10px] text-[15px] transition-all focus:outline-none focus:ring-4 focus:ring-[#007AFF]/10 placeholder:text-[#86868B] font-medium"
+          class="w-full md:w-56 lg:w-64 pl-10 pr-4 py-2 bg-gray-100 hover:bg-gray-200 focus:bg-white border border-gray-300 focus:border-[#007AFF] rounded-[10px] text-[15px] transition-all focus:outline-none focus:ring-4 focus:ring-[#007AFF]/10 placeholder:text-[#636366] font-semibold"
           oninput="handleSearch(this.value)"
         />
       </div>
@@ -107,7 +107,7 @@
       <!-- 엑셀 다운로드 버튼 -->
       <button
         onclick="exportToCSV()"
-        class="bg-black/[0.05] hover:bg-black/[0.08] text-[#1D1D1F] active:scale-95 px-3.5 py-2 rounded-full text-[14px] font-medium flex items-center gap-1.5 transition-all whitespace-nowrap"
+        class="bg-white hover:bg-gray-100 border border-gray-300 text-[#1D1D1F] active:scale-95 px-3.5 py-2 rounded-full text-[14px] font-bold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-sm"
         title="현재 일정을 엑셀(CSV) 파일로 다운로드합니다."
       >
         <i data-feather="download" class="w-4 h-4"></i>
@@ -117,7 +117,7 @@
       <!-- 일정 추가 버튼 -->
       <button
         onclick="openModal()"
-        class="bg-[#007AFF] hover:bg-[#0062CC] active:scale-95 text-white px-4 md:px-5 py-2 rounded-full text-[14px] font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-[0_4px_12px_rgba(0,122,255,0.25)]"
+        class="bg-[#007AFF] hover:bg-[#0062CC] active:scale-95 text-white px-4 md:px-5 py-2 rounded-full text-[14px] font-bold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-[0_4px_12px_rgba(0,122,255,0.25)]"
       >
         <i data-feather="plus" class="w-4 h-4"></i>
         <span>새 일정</span>
@@ -130,13 +130,13 @@
    
     <!-- 최초 로딩 오버레이 -->
     <div id="initial-loader" class="absolute inset-0 bg-[#F5F5F7]/80 backdrop-blur-xl z-50 flex items-center justify-center rounded-[32px] transition-opacity duration-300 hidden">
-      <div class="flex flex-col items-center gap-5 bg-white p-8 rounded-[28px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-black/[0.02]">
+      <div class="flex flex-col items-center gap-5 bg-white p-8 rounded-[28px] shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-200">
         <div class="p-4 bg-[#007AFF]/10 rounded-full">
           <i data-feather="loader" class="w-8 h-8 text-[#007AFF] spin-slow"></i>
         </div>
         <div class="text-center">
-          <p class="font-semibold text-[#1D1D1F] text-[17px]">워크스페이스 연결 중</p>
-          <p class="text-[14px] text-[#86868B] mt-1.5">클라우드 데이터를 동기화하고 있습니다.</p>
+          <p class="font-bold text-[#1D1D1F] text-[18px]">워크스페이스 연결 중</p>
+          <p class="text-[14px] text-[#48484A] mt-1.5 font-medium">클라우드 데이터를 동기화하고 있습니다.</p>
         </div>
       </div>
     </div>
@@ -145,24 +145,24 @@
     <div class="flex-1 flex flex-col gap-6 min-w-0 min-h-0">
      
       <!-- 대시보드 패널 -->
-      <div class="bg-white p-5 md:p-6 rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col gap-5 shrink-0 transition-all border border-black/[0.02]">
+      <div class="bg-white p-5 md:p-6 rounded-[28px] shadow-sm flex flex-col gap-5 shrink-0 transition-all border border-gray-300">
         <!-- 필터 및 포커스 영역 -->
         <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
-          <!-- iOS Segmented Control 스타일 필터 -->
-          <div class="lg:w-1/3 flex flex-col gap-3">
-            <h3 class="text-[12px] font-semibold text-[#86868B] flex items-center gap-1.5 uppercase tracking-wider pl-1">
+          <!-- PC 부서 필터: 3열 2줄 레이아웃 -->
+          <div class="lg:w-2/5 flex flex-col gap-3">
+            <h3 class="text-[13px] font-bold text-[#3A3A3C] flex items-center gap-1.5 uppercase tracking-wider pl-1">
               <i data-feather="filter" class="w-3.5 h-3.5"></i> 부서 필터링
             </h3>
-            <div id="filter-buttons" class="bg-[#F2F2F7] p-1 rounded-[14px] flex flex-wrap gap-1">
+            <div id="filter-buttons" class="bg-[#E5E5EA] p-1.5 rounded-[16px] grid grid-cols-3 gap-1.5">
               <!-- JS 주입 -->
             </div>
           </div>
 
-          <div class="lg:w-2/3 flex flex-col gap-3 lg:border-l border-black/[0.05] lg:pl-8">
-            <h3 class="text-[12px] font-semibold text-[#86868B] flex items-center gap-1.5 uppercase tracking-wider pl-1">
+          <div class="lg:w-3/5 flex flex-col gap-3 lg:border-l border-gray-200 lg:pl-8">
+            <h3 class="text-[13px] font-bold text-[#3A3A3C] flex items-center gap-1.5 uppercase tracking-wider pl-1">
               <i data-feather="star" class="w-3.5 h-3.5 text-[#FF9500]"></i> 이달의 포커스 업무
             </h3>
-            <div id="key-tasks-container" class="flex flex-wrap gap-2 overflow-y-auto max-h-[90px] no-scrollbar">
+            <div id="key-tasks-container" class="flex flex-wrap gap-2 overflow-y-auto max-h-[100px] no-scrollbar">
               <!-- JS 주입 -->
             </div>
           </div>
@@ -170,45 +170,45 @@
       </div>
 
       <!-- 캘린더 패널 -->
-      <div class="bg-white rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex-1 flex flex-col overflow-hidden min-h-0 border border-black/[0.02]">
-        <div class="grid grid-cols-3 items-center p-4 md:p-5 border-b border-black/[0.03] min-h-[70px] shrink-0 bg-white">
+      <div class="bg-white rounded-[28px] shadow-sm flex-1 flex flex-col overflow-hidden min-h-0 border border-gray-300">
+        <div class="grid grid-cols-3 items-center p-4 md:p-5 border-b border-gray-200 min-h-[70px] shrink-0 bg-white">
           <div class="flex justify-start">
-            <button onclick="handleToday()" class="px-4 py-2 text-[14px] font-medium text-[#1D1D1F] bg-[#F2F2F7] hover:bg-[#E5E5EA] rounded-[10px] transition-colors">
+            <button onclick="handleToday()" class="px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">
               오늘
             </button>
           </div>
 
           <div class="flex items-center justify-center gap-4">
-            <button onclick="handlePrevMonth()" class="p-2 hover:bg-[#F2F2F7] rounded-full transition-colors text-[#86868B] hover:text-[#1D1D1F]">
+            <button onclick="handlePrevMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
               <i data-feather="chevron-left" class="w-5 h-5"></i>
             </button>
-            <h2 id="calendar-title" class="text-[20px] md:text-[22px] font-semibold text-[#1D1D1F] tracking-tight min-w-[120px] text-center whitespace-nowrap">
+            <h2 id="calendar-title" class="text-[20px] md:text-[22px] font-bold text-[#1D1D1F] tracking-tight min-w-[140px] text-center whitespace-nowrap">
               <!-- JS 주입 -->
             </h2>
-            <button onclick="handleNextMonth()" class="p-2 hover:bg-[#F2F2F7] rounded-full transition-colors text-[#86868B] hover:text-[#1D1D1F]">
+            <button onclick="handleNextMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
               <i data-feather="chevron-right" class="w-5 h-5"></i>
             </button>
           </div>
 
-          <div id="calendar-legends" class="hidden md:flex flex-wrap justify-end gap-3 text-[12px] font-medium text-[#86868B]">
+          <div id="calendar-legends" class="hidden md:flex flex-wrap justify-end gap-3 text-[12px] font-bold text-[#48484A]">
             <!-- JS 주입 -->
           </div>
         </div>
 
         <!-- 요일 헤더 -->
-        <div class="grid grid-cols-7 border-b border-black/[0.03] shrink-0 bg-[#F9F9FB]">
-          <div class="text-center py-2.5 text-[12px] font-medium text-[#FF3B30]">일</div>
-          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">월</div>
-          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">화</div>
-          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">수</div>
-          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">목</div>
-          <div class="text-center py-2.5 text-[12px] font-medium text-[#86868B]">금</div>
-          <div class="text-center py-2.5 text-[12px] font-medium text-[#007AFF]">토</div>
+        <div class="grid grid-cols-7 border-b border-gray-200 shrink-0 bg-[#F9F9FB]">
+          <div class="text-center py-2.5 text-[12px] font-bold text-[#FF3B30]">일</div>
+          <div class="text-center py-2.5 text-[12px] font-bold text-[#3A3A3C]">월</div>
+          <div class="text-center py-2.5 text-[12px] font-bold text-[#3A3A3C]">화</div>
+          <div class="text-center py-2.5 text-[12px] font-bold text-[#3A3A3C]">수</div>
+          <div class="text-center py-2.5 text-[12px] font-bold text-[#3A3A3C]">목</div>
+          <div class="text-center py-2.5 text-[12px] font-bold text-[#3A3A3C]">금</div>
+          <div class="text-center py-2.5 text-[12px] font-bold text-[#007AFF]">토</div>
         </div>
 
         <!-- 캘린더 그리드 영역 -->
         <div class="flex-1 overflow-y-auto min-h-0 bg-white no-scrollbar">
-          <div class="grid grid-cols-7 grid-rows-6 h-full min-h-[500px] md:min-h-[600px] xl:min-h-[650px]" id="calendar-grid">
+          <div class="grid grid-cols-7 grid-rows-6 h-full min-h-[500px] md:min-h-[600px] xl:min-h-[650px] border-l border-t border-gray-200" id="calendar-grid">
             <!-- JS 주입 -->
           </div>
         </div>
@@ -216,19 +216,19 @@
     </div>
 
     <!-- --- [Right Panel: Daily Timeline Details] --- -->
-   <div class="w-full xl:w-[380px] 2xl:w-[420px] bg-white rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col h-[450px] md:h-[550px] xl:h-auto max-h-[calc(100vh-6rem)] xl:sticky top-[104px] shrink-0 transition-all border border-black/[0.02] mt-6 xl:mt-0">
-      <div class="p-5 md:p-6 border-b border-black/[0.03] flex justify-between items-start">
+   <div class="w-full xl:w-[380px] 2xl:w-[420px] bg-white rounded-[28px] shadow-sm flex flex-col h-[450px] md:h-[550px] xl:h-auto max-h-[calc(100vh-6rem)] xl:sticky top-[104px] shrink-0 transition-all border border-gray-300 mt-6 xl:mt-0">
+      <div class="p-5 md:p-6 border-b border-gray-200 flex justify-between items-start">
         <div>
-          <h2 class="text-[18px] md:text-[20px] font-semibold text-[#1D1D1F] mb-1 tracking-tight">
+          <h2 class="text-[18px] md:text-[20px] font-bold text-[#1D1D1F] mb-1 tracking-tight">
             상세 일정
           </h2>
-          <p id="daily-focus-title" class="text-[13px] font-medium text-[#86868B] flex items-center">
+          <p id="daily-focus-title" class="text-[14px] font-bold text-[#48484A] flex items-center">
             <!-- JS 주입 -->
           </p>
         </div>
         <button
           onclick="openModal(selectedDate)"
-          class="p-2 bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#007AFF] rounded-full transition-colors active:scale-95"
+          class="p-2 bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-gray-300 text-[#007AFF] rounded-full transition-colors active:scale-95"
           title="선택한 날짜에 새로운 일정을 추가합니다."
         >
           <i data-feather="plus" class="w-5 h-5"></i>
@@ -243,15 +243,15 @@
   </main>
 
   <!-- --- [Modal: Task Registration & Edit] --- -->
-  <div id="taskModal" class="fixed inset-0 bg-black/40 backdrop-blur-md items-center justify-center z-[100] p-4 sm:p-6 hidden flex transition-all duration-300">
-    <div class="bg-white rounded-[32px] shadow-[0_24px_60px_rgba(0,0,0,0.15)] w-full max-w-[600px] overflow-hidden flex flex-col max-h-[92vh] animation-fade-in border border-white/20">
+  <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 sm:p-6 hidden flex transition-all duration-300">
+    <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-[600px] overflow-hidden flex flex-col max-h-[92vh] animation-fade-in border border-gray-300">
      
       <!-- 모달 헤더 -->
-      <div class="flex items-center justify-between px-6 py-5 border-b border-black/[0.05] bg-white">
+      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-white">
         <div>
-          <h3 id="modal-title" class="text-[20px] font-semibold text-[#1D1D1F] tracking-tight">새로운 일정</h3>
+          <h3 id="modal-title" class="text-[20px] font-bold text-[#1D1D1F] tracking-tight">새로운 일정</h3>
         </div>
-        <button onclick="closeModal()" class="p-2 text-[#86868B] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] rounded-full transition-colors focus:outline-none bg-[#F2F2F7]">
+        <button onclick="closeModal()" class="p-2 text-[#48484A] hover:text-[#1D1D1F] hover:bg-[#F2F2F7] border border-gray-200 rounded-full transition-colors focus:outline-none">
           <i data-feather="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -261,30 +261,30 @@
        
         <!-- 제목 및 중요도 -->
         <div class="flex flex-col gap-3">
-          <input id="f_title" required type="text" class="w-full bg-[#F5F5F7] border-transparent rounded-[14px] p-4 text-[17px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="일정 제목" />
+          <input id="f_title" required type="text" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[17px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="일정 제목" />
           
           <label class="flex items-center gap-2 cursor-pointer w-fit pl-1 mt-1">
-            <input type="checkbox" id="f_isFocus" class="w-4 h-4 text-[#FF9500] rounded-[4px] border-gray-300 focus:ring-[#FF9500] cursor-pointer">
-            <span class="text-[14px] font-medium text-[#1D1D1F] flex items-center gap-1.5">
+            <input type="checkbox" id="f_isFocus" class="w-4 h-4 text-[#FF9500] rounded-[4px] border-gray-400 focus:ring-[#FF9500] cursor-pointer">
+            <span class="text-[14px] font-bold text-[#1D1D1F] flex items-center gap-1.5">
               이달의 포커스 업무로 강조
             </span>
           </label>
         </div>
 
-        <div class="h-px w-full bg-black/[0.05]"></div>
+        <div class="h-px w-full bg-gray-200"></div>
 
         <!-- 구분 및 소속 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">업무 구분 <span class="text-[#FF3B30]">*</span></label>
-            <select id="f_type" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
+            <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">업무 구분 <span class="text-[#FF3B30]">*</span></label>
+            <select id="f_type" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
               <option value="individual">개인별 업무</option>
               <option value="section">과단위 (공통) 업무</option>
             </select>
           </div>
           <div>
-            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">소속 파트 <span class="text-[#FF3B30]">*</span></label>
-            <select id="f_teamId" onchange="handleTeamChange()" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
+            <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">소속 파트 <span class="text-[#FF3B30]">*</span></label>
+            <select id="f_teamId" onchange="handleTeamChange()" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
               <!-- JS 주입 -->
             </select>
           </div>
@@ -293,53 +293,53 @@
         <!-- 담당자 및 장소 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">담당자 명 <span id="assignee_asterisk" class="text-[#FF3B30]">*</span></label>
-            <input id="f_assignee" required type="text" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="예: 김상생 책임" />
+            <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">담당자 명 <span id="assignee_asterisk" class="text-[#FF3B30]">*</span></label>
+            <input id="f_assignee" required type="text" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="예: 김상생 책임" />
           </div>
           <div>
-            <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">장소</label>
-            <input id="f_location" type="text" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="선택 사항" />
+            <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">장소</label>
+            <input id="f_location" type="text" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="선택 사항" />
           </div>
         </div>
 
-        <div class="h-px w-full bg-black/[0.05]"></div>
+        <div class="h-px w-full bg-gray-200"></div>
 
         <!-- 날짜 및 시간 영역 -->
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">시작 날짜 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_startDate" required type="date" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">시작 날짜 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_startDate" required type="date" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
             </div>
             <div>
-              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">종료 날짜 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_endDate" required type="date" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">종료 날짜 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_endDate" required type="date" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">시작 시간 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_startTime" required type="time" value="09:00" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">시작 시간 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_startTime" required type="time" value="09:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
             </div>
             <div>
-              <label class="block text-[13px] font-medium text-[#86868B] mb-2 pl-1">종료 시간 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_endTime" required type="time" value="18:00" class="w-full bg-[#F5F5F7] border-transparent rounded-[12px] p-3.5 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">종료 시간 <span class="text-[#FF3B30]">*</span></label>
+              <input id="f_endTime" required type="time" value="18:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
             </div>
           </div>
         </div>
 
-        <div class="h-px w-full bg-black/[0.05]"></div>
+        <div class="h-px w-full bg-gray-200"></div>
 
         <!-- 상세 메모 -->
         <div>
-          <textarea id="f_description" rows="3" class="w-full bg-[#F5F5F7] border-transparent rounded-[14px] p-4 text-[15px] font-medium focus:bg-white focus:border-[#007AFF] outline-none transition-all resize-none placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="추가 메모를 입력하세요 (선택 사항)"></textarea>
+          <textarea id="f_description" rows="3" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all resize-none placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="추가 메모를 입력하세요 (선택 사항)"></textarea>
         </div>
 
         <!-- 하단 컨트롤 버튼 -->
         <div class="pt-2 flex justify-between gap-3 items-center">
-          <button type="button" id="btn_delete" onclick="handleDeleteBtnClick()" class="hidden px-5 py-3 rounded-full text-[15px] font-medium text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 transition-colors active:scale-95">삭제</button>
+          <button type="button" id="btn_delete" onclick="handleDeleteBtnClick()" class="hidden px-5 py-3 rounded-full text-[15px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 border border-transparent hover:border-[#FF3B30]/30 transition-colors active:scale-95">삭제</button>
           <div class="flex gap-3 ml-auto">
-            <button type="submit" id="btn_submit" class="px-8 py-3 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-full text-[15px] font-semibold shadow-[0_4px_12px_rgba(0,122,255,0.3)] transition-all active:scale-95">저장</button>
+            <button type="submit" id="btn_submit" class="px-8 py-3 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-full text-[15px] font-bold shadow-[0_4px_12px_rgba(0,122,255,0.3)] transition-all active:scale-95 border border-transparent">저장</button>
           </div>
         </div>
       </form>
@@ -356,11 +356,11 @@
     const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzEwdXj0m7FcW5RGHtfAaEiIGo5hqZGQ9rQjoEmNjZUUccpURKg40hp5LEe6Vw0EB9ojw/exec";
 
     const TEAMS = [
-      { id: 't5', name: '수석님', text: 'text-[#FF3B30]', bg: 'bg-[#FF3B30]/10', border: 'border-[#FF3B30]/20', hex: '#FF3B30' },
-      { id: 't1', name: '기획과', text: 'text-[#007AFF]', bg: 'bg-[#007AFF]/10', border: 'border-[#007AFF]/20', hex: '#007AFF' },
-      { id: 't2', name: '지원과', text: 'text-[#34C759]', bg: 'bg-[#34C759]/10', border: 'border-[#34C759]/20', hex: '#34C759' },
-      { id: 't3', name: '인력지원과', text: 'text-[#FF9500]', bg: 'bg-[#FF9500]/10', border: 'border-[#FF9500]/20', hex: '#FF9500' },
-      { id: 't4', name: '협력과', text: 'text-[#AF52DE]', bg: 'bg-[#AF52DE]/10', border: 'border-[#AF52DE]/20', hex: '#AF52DE' },
+      { id: 't5', name: '수석님', text: 'text-[#FF3B30]', bg: 'bg-[#FF3B30]/15', border: 'border-[#FF3B30]/30', hex: '#FF3B30' },
+      { id: 't1', name: '기획과', text: 'text-[#007AFF]', bg: 'bg-[#007AFF]/15', border: 'border-[#007AFF]/30', hex: '#007AFF' },
+      { id: 't2', name: '지원과', text: 'text-[#34C759]', bg: 'bg-[#34C759]/15', border: 'border-[#34C759]/30', hex: '#34C759' },
+      { id: 't3', name: '인력지원과', text: 'text-[#FF9500]', bg: 'bg-[#FF9500]/15', border: 'border-[#FF9500]/30', hex: '#FF9500' },
+      { id: 't4', name: '협력과', text: 'text-[#AF52DE]', bg: 'bg-[#AF52DE]/15', border: 'border-[#AF52DE]/30', hex: '#AF52DE' },
     ];
 
     const HOLIDAYS = {
@@ -444,8 +444,8 @@
         icon = 'info'; bgClass = 'bg-[#007AFF]/10'; textClass = 'text-[#007AFF]';
       }
 
-      toast.className = `toast-enter flex items-center gap-3 bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-black/[0.05] rounded-full px-5 py-3.5 pointer-events-auto`;
-      toast.innerHTML = `<div class="p-1 rounded-full ${bgClass} ${textClass}"><i data-feather="${icon}" class="w-4 h-4"></i></div><span class="text-[14px] font-medium text-[#1D1D1F] pr-2">${message}</span>`;
+      toast.className = `toast-enter flex items-center gap-3 bg-white shadow-xl border border-gray-300 rounded-full px-5 py-3.5 pointer-events-auto`;
+      toast.innerHTML = `<div class="p-1 rounded-full ${bgClass} ${textClass}"><i data-feather="${icon}" class="w-4 h-4"></i></div><span class="text-[14px] font-bold text-[#1D1D1F] pr-2">${message}</span>`;
       container.appendChild(toast);
       feather.replace();
 
@@ -493,12 +493,12 @@
         loading: { html: `<i data-feather="refresh-cw" class="w-3 h-3 spin-slow"></i> 통신 중`, classes: "bg-[#007AFF]/10 text-[#007AFF]" },
         google: { html: `<i data-feather="cloud" class="w-3 h-3"></i> 동기화됨`, classes: "bg-[#34C759]/10 text-[#34C759]" },
         error: { html: `<i data-feather="alert-circle" class="w-3 h-3"></i> 연결 실패`, classes: "bg-[#FF3B30]/10 text-[#FF3B30] cursor-pointer" },
-        local: { html: `<i data-feather="hard-drive" class="w-3 h-3"></i> 로컬 모드`, classes: "bg-[#E5E5EA] text-[#86868B]" }
+        local: { html: `<i data-feather="hard-drive" class="w-3 h-3"></i> 로컬 모드`, classes: "bg-[#E5E5EA] text-[#3A3A3C]" }
       };
 
       const cur = statusConfig[mode] || statusConfig.local;
       statusEl.innerHTML = cur.html;
-      statusEl.className = `flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full transition-all ${cur.classes}`;
+      statusEl.className = `flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full transition-all border border-gray-300 ${cur.classes}`;
      
       if(mode === 'error') statusEl.onclick = () => alert('클라우드 연결 오류.\n로컬 저장소에 임시 보관 중입니다.');
       else statusEl.onclick = null;
@@ -516,10 +516,12 @@
     function renderDashboard() {
       const filtered = getFilteredTasks();
      
-      let filterHtml = `<button onclick="setFilter('all')" class="flex-1 min-w-[60px] px-3 py-1.5 rounded-[10px] text-[13px] font-medium transition-all ${filterTeam === 'all' ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#86868B] hover:text-[#1D1D1F]'}">전체</button>`;
+      let filterHtml = `<button onclick="setFilter('all')" class="px-3 py-2 rounded-[12px] text-[14px] font-bold transition-all border ${filterTeam === 'all' ? 'bg-white text-[#1D1D1F] border-gray-300 shadow-sm' : 'text-[#48484A] border-transparent hover:text-[#1D1D1F] hover:bg-gray-100'}">전체 보기</button>`;
+      
+      // 요청에 따른 순서 배치를 위해 TEAMS 배열을 순회 (순서: 수석, 기획, 지원, 인력, 협력)
       TEAMS.forEach(team => {
         const isActive = filterTeam === team.id;
-        filterHtml += `<button onclick="setFilter('${team.id}')" class="flex-1 min-w-[60px] px-3 py-1.5 rounded-[10px] text-[13px] font-medium transition-all ${isActive ? 'bg-white text-[#1D1D1F] shadow-sm' : 'text-[#86868B] hover:text-[#1D1D1F]'}">${team.name.substring(0,2)}</button>`;
+        filterHtml += `<button onclick="setFilter('${team.id}')" class="px-3 py-2 rounded-[12px] text-[14px] font-bold transition-all border ${isActive ? 'bg-white text-[#1D1D1F] border-gray-300 shadow-sm' : 'text-[#48484A] border-transparent hover:text-[#1D1D1F] hover:bg-gray-100'}">${team.name.substring(0,team.name.length)}</button>`;
       });
       document.getElementById('filter-buttons').innerHTML = filterHtml;
 
@@ -532,17 +534,17 @@
 
       let keyTasksHtml = '';
       if (focusTasks.length === 0) {
-        keyTasksHtml = `<span class="text-[13px] text-[#86868B] px-1 py-1 font-medium">지정된 포커스 업무가 없습니다.</span>`;
+        keyTasksHtml = `<span class="text-[14px] text-[#48484A] px-1 py-1 font-bold">지정된 포커스 업무가 없습니다.</span>`;
       } else {
         focusTasks.forEach(task => {
           const team = TEAMS.find(t => t.id === task.teamId);
           const dateRangeBadge = formatTaskDateRange(task.startDate, task.endDate);
 
           keyTasksHtml += `
-            <div ondblclick="openEditTaskModal(${task.id})" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-[#F5F5F7] hover:bg-[#E5E5EA] select-none" title="더블 클릭하여 수정">
-              <span class="text-[11px] font-semibold text-[#1D1D1F] bg-white px-2 py-0.5 rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)]">${dateRangeBadge}</span>
-              <div class="w-1.5 h-1.5 rounded-full" style="background-color: ${team.hex};"></div>
-              <span class="font-medium text-[#1D1D1F] truncate max-w-[150px]">${task.title}</span>
+            <div ondblclick="openEditTaskModal(${task.id})" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-white hover:bg-[#F2F2F7] border border-gray-300 shadow-sm select-none" title="더블 클릭하여 수정">
+              <span class="text-[11px] font-bold text-[#1D1D1F] bg-[#F2F2F7] px-2 py-0.5 rounded-[6px] border border-gray-200">${dateRangeBadge}</span>
+              <div class="w-2 h-2 rounded-full" style="background-color: ${team.hex};"></div>
+              <span class="font-bold text-[#1D1D1F] truncate max-w-[150px]">${task.title}</span>
             </div>
           `;
         });
@@ -582,11 +584,11 @@
         const isSaturday = i % 7 === 6;
         const isRedDay = isCurrentMonth && (isSunday || holidayName);
        
-        let cellClasses = `relative border-b border-r border-black/[0.03] transition-colors p-1 md:p-1.5 flex flex-col h-full overflow-hidden `;
-        if (!isCurrentMonth) cellClasses += `bg-[#F9F9FB] text-black/20 `;
+        let cellClasses = `relative border-r border-b border-gray-200 transition-colors p-1 md:p-1.5 flex flex-col h-full overflow-hidden `;
+        if (!isCurrentMonth) cellClasses += `bg-[#F9F9FB] text-black/15 `;
         else {
-          cellClasses += `bg-white hover:bg-[#F5F5F7]/50 cursor-pointer `;
-          if (isSelected) cellClasses += `ring-2 ring-inset ring-[#007AFF] z-10 bg-[#007AFF]/[0.02] rounded-[8px] border-transparent m-[-1px] `;
+          cellClasses += `bg-white hover:bg-gray-50 cursor-pointer `;
+          if (isSelected) cellClasses += `ring-2 ring-inset ring-[#007AFF] z-10 bg-[#007AFF]/5 rounded-[4px] `;
         }
 
         let cellContent = '';
@@ -600,14 +602,13 @@
           else if (isRedDay) numColorClass = 'text-[#FF3B30]';
           else if (isSaturday) numColorClass = 'text-[#007AFF]';
 
-          const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-full shadow-[0_2px_8px_rgba(0,122,255,0.3)]">${dayNum}</span>` : dayNum;
-          const holidayLabel = holidayName ? `<span class="text-[9px] md:text-[10px] font-semibold text-[#FF3B30] truncate ml-1">${holidayName}</span>` : '';
+          const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-full shadow-md font-bold">${dayNum}</span>` : dayNum;
+          const holidayLabel = holidayName ? `<span class="text-[10px] font-bold text-[#FF3B30] truncate ml-1">${holidayName}</span>` : '';
 
-          // [수정] 5개까지만 노출, 2열 배치 레이아웃
           const visibleTasks = dayTasks.slice(0, 5);
           const remainingCount = dayTasks.length - 5;
 
-          // 첫 번째 업무: 날짜 숫자 우측 여백에 배치
+          // 첫 번째 업무
           let task1Html = '';
           if (visibleTasks[0]) {
             const t = visibleTasks[0];
@@ -619,7 +620,7 @@
             `;
           }
 
-          // 나머지 2~5번 업무: 2열로 배치
+          // 나머지 업무
           let subTasksHtml = '';
           if (visibleTasks.length > 1) {
             subTasksHtml = '<div class="grid grid-cols-2 gap-1 mt-1">';
@@ -634,15 +635,13 @@
             subTasksHtml += '</div>';
           }
 
-          // 더보기 표시
-          const moreHtml = remainingCount > 0 ? `<div class="text-[9px] md:text-[10px] text-[#86868B] font-bold mt-0.5 ml-0.5">+ ${remainingCount}개</div>` : '';
+          const moreHtml = remainingCount > 0 ? `<div class="text-[10px] text-[#48484A] font-bold mt-1 ml-0.5 bg-gray-100 px-1 rounded w-fit">+ ${remainingCount}개</div>` : '';
 
           cellContent = `
             <div class="flex items-center gap-1.5 min-h-[28px] w-full">
               <div class="text-[14px] md:text-[15px] font-bold ${numColorClass} shrink-0 w-6 md:w-7 flex items-center justify-center">${numDisplay}</div>
               ${holidayLabel || task1Html}
             </div>
-            <!-- 만약 공휴일 레이블이 있다면 업무1을 다음 줄로 밀지 않기 위해 조건부 처리 -->
             ${holidayLabel && task1Html ? `<div class="mt-0.5">${task1Html}</div>` : ''}
             ${subTasksHtml}
             ${moreHtml}
@@ -669,12 +668,12 @@
       const isRed = isHoliday || isSun;
      
       let titleHtml = `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 ${daysStr[selectedDate.getDay()]}요일`;
-      if (isHoliday) titleHtml += ` <span class="text-[#FF3B30] ml-2 bg-[#FF3B30]/10 px-2 py-0.5 rounded-[6px] text-[11px] font-semibold">${isHoliday}</span>`;
+      if (isHoliday) titleHtml += ` <span class="text-[#FF3B30] ml-2 bg-[#FF3B30]/10 px-2 py-0.5 rounded-[6px] text-[11px] font-bold border border-[#FF3B30]/20">${isHoliday}</span>`;
      
       const titleEl = document.getElementById('daily-focus-title');
       titleEl.innerHTML = titleHtml;
-      if (isRed) titleEl.classList.replace('text-[#86868B]', 'text-[#FF3B30]');
-      else titleEl.classList.replace('text-[#FF3B30]', 'text-[#86868B]');
+      if (isRed) titleEl.classList.replace('text-[#48484A]', 'text-[#FF3B30]');
+      else titleEl.classList.replace('text-[#FF3B30]', 'text-[#48484A]');
 
       const filtered = getFilteredTasks();
       const dayTasks = filtered.filter(t => t.startDate <= dateStr && t.endDate >= dateStr).sort((a, b) => a.startTime.localeCompare(b.startTime));
@@ -683,9 +682,9 @@
      
       if (dayTasks.length === 0) {
         listHtml = `
-          <div class="h-full flex flex-col items-center justify-center text-[#86868B]">
-            <p class="font-medium text-[15px] text-[#1D1D1F]">일정 없음</p>
-            <p class="text-[13px] mt-1">이 날짜에 등록된 업무가 없습니다.</p>
+          <div class="h-full flex flex-col items-center justify-center text-[#48484A]">
+            <p class="font-bold text-[16px] text-[#1D1D1F]">일정 없음</p>
+            <p class="text-[14px] mt-1 font-medium">이 날짜에 등록된 업무가 없습니다.</p>
           </div>
         `;
       } else {
@@ -695,37 +694,37 @@
 
           let descHtml = '';
           if (task.description) {
-            descHtml = `<div class="mt-3 text-[13px] text-[#86868B] bg-white p-3 rounded-[12px] leading-relaxed font-normal whitespace-pre-wrap">${task.description}</div>`;
+            descHtml = `<div class="mt-3 text-[13px] text-[#3A3A3C] bg-white p-3 rounded-[12px] leading-relaxed font-bold border border-gray-200 whitespace-pre-wrap">${task.description}</div>`;
           }
 
           let locationHtml = '';
           if (task.location) {
-            locationHtml = `<span class="flex items-center gap-1.5"><i data-feather="map-pin" class="w-3.5 h-3.5"></i> ${task.location}</span>`;
+            locationHtml = `<span class="flex items-center gap-1.5 font-bold"><i data-feather="map-pin" class="w-3.5 h-3.5"></i> ${task.location}</span>`;
           }
          
           const focusStarHtml = task.isFocus ? `<i data-feather="star" class="w-4 h-4 text-[#FF9500] fill-[#FF9500] mb-0.5"></i>` : '';
 
           listHtml += `
-            <div ondblclick="openEditTaskModal(${task.id})" class="bg-white rounded-[20px] p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all cursor-pointer relative overflow-hidden group border border-black/[0.02] select-none" title="더블 클릭하여 수정">
+            <div ondblclick="openEditTaskModal(${task.id})" class="bg-white rounded-[20px] p-4 shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden group border border-gray-300 select-none" title="더블 클릭하여 수정">
               <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: ${team.hex};"></div>
               
               <div class="pl-2.5">
                 <div class="flex items-start justify-between mb-1.5">
-                  <h4 class="font-semibold text-[#1D1D1F] text-[15px] leading-snug flex items-center gap-2">
+                  <h4 class="font-bold text-[#1D1D1F] text-[15px] leading-snug flex items-center gap-2">
                     ${task.title} ${focusStarHtml}
                   </h4>
-                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-[6px] ${team.bg} ${team.text} whitespace-nowrap">${team.name}</span>
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-[6px] ${team.bg} ${team.text} border ${team.border} whitespace-nowrap">${team.name}</span>
                 </div>
                
                 <div class="flex flex-col gap-2 mt-2">
-                  <div class="flex items-center gap-3 text-[13px] font-medium text-[#86868B]">
-                    <span class="flex items-center gap-1.5"><i data-feather="clock" class="w-3.5 h-3.5"></i> ${task.startTime} ~ ${task.endTime}</span>
+                  <div class="flex items-center gap-3 text-[13px] font-bold text-[#48484A]">
+                    <span class="flex items-center gap-1.5 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200"><i data-feather="clock" class="w-3.5 h-3.5"></i> ${task.startTime} ~ ${task.endTime}</span>
                     ${locationHtml}
                   </div>
                  
-                  <div class="flex items-center gap-2 text-[13px] mt-1 font-medium text-[#1D1D1F]">
-                    <div class="w-5 h-5 rounded-full bg-[#F2F2F7] flex items-center justify-center text-[10px]"><i data-feather="${isSection ? 'users' : 'user'}" class="w-3 h-3 text-[#86868B]"></i></div>
-                    ${task.assignee} <span class="text-[#86868B] font-normal text-[12px]">(${isSection ? '과단위' : '개인'})</span>
+                  <div class="flex items-center gap-2 text-[13px] mt-1 font-bold text-[#1D1D1F]">
+                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 text-[10px]"><i data-feather="${isSection ? 'users' : 'user'}" class="w-3.5 h-3.5 text-[#3A3A3C]"></i></div>
+                    ${task.assignee} <span class="text-[#48484A] font-bold text-[12px]">(${isSection ? '과단위' : '개인'})</span>
                   </div>
                  
                   ${descHtml}
@@ -804,7 +803,7 @@
       const btn = document.getElementById('btn_delete');
       if (btn) {
         btn.innerText = '삭제';
-        btn.className = 'px-5 py-3 rounded-full text-[15px] font-medium text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 transition-colors active:scale-95';
+        btn.className = 'px-5 py-3 rounded-full text-[15px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 border border-transparent hover:border-[#FF3B30]/30 transition-colors active:scale-95';
       }
     }
 
@@ -911,7 +910,7 @@
         isDeleteConfirming = true;
         const btn = document.getElementById('btn_delete');
         btn.innerText = "정말 삭제할까요?";
-        btn.className = "px-5 py-3 rounded-full text-[15px] font-semibold text-white bg-[#FF3B30] hover:bg-[#D70015] transition-colors active:scale-95";
+        btn.className = "px-5 py-3 rounded-full text-[15px] font-bold text-white bg-[#FF3B30] hover:bg-[#D70015] border border-transparent transition-colors active:scale-95";
         
         setTimeout(() => {
           if (isDeleteConfirming && !document.getElementById('taskModal').classList.contains('hidden')) {
