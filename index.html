@@ -400,9 +400,9 @@
             <div id="email_form" class="hidden flex-col gap-2 mt-1">
               <textarea id="email_content" rows="3" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[14px] font-bold outline-none focus:border-[#007AFF] focus:bg-white transition-all resize-none" placeholder="여기에 전달할 내용을 작성해주세요..."></textarea>
               <button type="button" id="btn_send_email" onclick="window.sendEmail()" class="py-3 bg-[#34C759] hover:bg-[#28A745] text-white font-bold rounded-[14px] flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
-                <i data-feather="send" class="w-4 h-4"></i> 사내 메일 앱(Outlook 등)으로 전송하기
+                <i data-feather="send" class="w-4 h-4"></i> 메일 바로 보내기
               </button>
-              <p class="text-[11px] text-[#86868B] text-center font-bold">버튼을 누르면 본인 이메일 계정으로 발송할 수 있도록 창이 열립니다.</p>
+              <p class="text-[11px] text-[#86868B] text-center font-bold">버튼을 누르면 작성자에게 즉시 이메일이 발송됩니다.</p>
             </div>
           </div>
 
@@ -504,6 +504,9 @@
     let searchQuery = '';
     let currentEditTaskId = null;
     let isDeleteConfirming = false;
+
+    // 메일 발송용 구글 앱스 스크립트 API URL (여기에 URL을 붙여넣으세요)
+    window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbyrVd7cZ3PLo0Zik0SjQTNDQ22qzYN-KmR-KaHYKvC6xn43j-9emyGBFJ_qhpO0-3Yx/exec";
 
     /* -------------------------------------------------------------------------- */
     /* 3. Firebase 설정 및 초기화                                                */
@@ -1274,16 +1277,50 @@
         return;
       }
 
-      // 요청하신 고정된 메일 제목
-      const subject = encodeURIComponent("업무 관련 지시사항(부서 캘린더 기반)");
-      const body = encodeURIComponent(`[업무명: ${task.title}]\n\n${content}\n\n--------------------------------------------\n* 발신자: ${currentUser.email}\n* 본 메일은 HD현대삼호 동반성장부 통합 워크스페이스에서 작성되었습니다.`);
+      if (!window.EMAIL_API_URL || window.EMAIL_API_URL === "여기에_구글_앱스_스크립트_URL_입력") {
+        showToast('메일 전송 서버가 아직 설정되지 않았습니다. 관리자에게 문의하세요.', 'error');
+        return;
+      }
 
-      // 메일 앱 호출 (발신자는 PC에 로그인된 작성자 계정, 수신자는 task.creatorEmail)
-      window.location.href = `mailto:${task.creatorEmail}?subject=${subject}&body=${body}`;
-      
-      showToast('사내 메일 프로그램이 실행됩니다.', 'success');
-      window.toggleEmailForm();
-      document.getElementById('email_content').value = '';
+      const btn = document.getElementById('btn_send_email');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i data-feather="loader" class="w-4 h-4 spin-slow"></i> 발송 중...`;
+      feather.replace();
+
+      // 요청하신 고정된 메일 제목
+      const subject = "업무 관련 지시사항(부서 캘린더 기반)";
+      const body = `[업무명: ${task.title}]\n\n${content}\n\n--------------------------------------------\n* 발신자: ${currentUser.email}\n* 본 메일은 HD현대삼호 동반성장부 통합 워크스페이스에서 자동 발송되었습니다.`;
+
+      try {
+        const response = await fetch(window.EMAIL_API_URL, {
+          method: 'POST',
+          // CORS 오류 방지를 위해 text/plain 사용
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            to: task.creatorEmail,
+            replyTo: currentUser.email, // 답장(Reply) 시 발송자 본인에게 돌아가도록 설정
+            senderName: currentUser.email.split('@')[0], // 이름에 이메일 앞부분 표시
+            subject: subject,
+            body: body
+          })
+        });
+
+        if (response.ok) {
+          showToast('메일이 성공적으로 바로 발송되었습니다.', 'success');
+          window.toggleEmailForm();
+          document.getElementById('email_content').value = '';
+        } else {
+          throw new Error('서버 응답 오류');
+        }
+      } catch (error) {
+        console.error("메일 발송 실패:", error);
+        showToast('메일 발송 중 오류가 발생했습니다.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        feather.replace();
+      }
     }
 
     /* -------------------------------------------------------------------------- */
