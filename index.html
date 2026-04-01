@@ -870,9 +870,9 @@
           `;
 
           if (dayTasks.length > 0) {
-              const MAX_VISIBLE = 3; 
+              const MAX_VISIBLE = 4; // 화면 높이를 고려하여 표시 개수를 4개로 증가
               
-              if (dayTasks.length <= 3) {
+              if (dayTasks.length <= MAX_VISIBLE) {
                   dayTasks.forEach(t => {
                       const team = TEAMS.find(x => x.id === t.teamId);
                       tasksHtml += `
@@ -886,8 +886,8 @@
                       `;
                   });
               } else {
-                  // 4개 이상 시: 1, 2번째는 그대로 표시
-                  for(let j=0; j<2; j++) {
+                  // 초과 시: MAX_VISIBLE - 1 개까지는 그대로 표시 (총 3개)
+                  for(let j=0; j<MAX_VISIBLE-1; j++) {
                       const t = dayTasks[j];
                       const team = TEAMS.find(x => x.id === t.teamId);
                       tasksHtml += `
@@ -901,18 +901,18 @@
                       `;
                   }
 
-                  // 3번째 줄: 좌측에 일정 표시, 우측 끝에 +N개 미니 버튼 표시
-                  const t3 = dayTasks[2];
-                  const team3 = TEAMS.find(x => x.id === t3.teamId);
-                  const hiddenCount = dayTasks.length - 3;
+                  // 마지막 줄: 좌측에 일정 표시, 우측 끝에 +N개 미니 버튼 표시
+                  const tLast = dayTasks[MAX_VISIBLE-1];
+                  const teamLast = TEAMS.find(x => x.id === tLast.teamId);
+                  const hiddenCount = dayTasks.length - MAX_VISIBLE;
 
                   tasksHtml += `
                     <div class="flex items-center gap-1 w-full">
                         <div class="flex-1 min-w-0 bg-white rounded-[4px] shadow-sm">
-                            <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t3.id}')"
-                                 class="w-full ${team3.bg} ${team3.text} px-1.5 py-0.5 rounded-[4px] text-[10px] sm:text-[11px] font-bold truncate border ${team3.border} leading-tight hover:opacity-80 transition-opacity"
-                                 title="${t3.title}">
-                              ${t3.title}
+                            <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${tLast.id}')"
+                                 class="w-full ${teamLast.bg} ${teamLast.text} px-1.5 py-0.5 rounded-[4px] text-[10px] sm:text-[11px] font-bold truncate border ${teamLast.border} leading-tight hover:opacity-80 transition-opacity"
+                                 title="${tLast.title}">
+                              ${tLast.title}
                             </div>
                         </div>
                         <div onclick="window.showDayPopover(event, '${cellDateStr}')"
