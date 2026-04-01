@@ -468,6 +468,10 @@
     let isDeleteConfirming = false;
     window.selectedTaskId = null; 
 
+    // 터치 제어용 변수
+    let lastClickTime = 0;
+    let lastClickDate = '';
+
     // 메일 발송용 구글 앱스 스크립트 API URL
     window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwwbk4CijVvlht7m-8L0sQxSg4Kp3zz403BIV7T_KuULy4hApCYJ68C86AnUo-nFtkNow/exec";
 
@@ -616,7 +620,6 @@
         return;
       }
      
-      // --- [시트 1: 전체업무] ---
       const headers1 = ['일련번호', '업무 제목', '구분', '소 파트', '담당자', '장소', '시작일자', '종료일자', '시작시간', '종료시간', '주요업무 여부', '상세메모'];
       const rows1 = tasks.map(task => {
         const teamName = TEAMS.find(t => t.id === task.teamId)?.name || '알 수 없음';
@@ -631,7 +634,6 @@
       });
       const ws1 = XLSX.utils.aoa_to_sheet([headers1, ...rows1]);
 
-      // --- [시트 2: 주간업무] ---
       const headers2 = ['소속파트', '상세메모', '담당자', '시작일자'];
       const rows2 = [];
       const teamOrder = {};
@@ -736,9 +738,9 @@
       document.getElementById('key-tasks-container').innerHTML = keyTasksHtml;
     }
 
-    // --- [팝업 열기/닫기 로직] ---
-    window.showDayPopover = function(e, dateStr) {
-      e.stopPropagation(); 
+    // --- [스마트폰 터치 최적화 팝업 열기/닫기 로직] ---
+    window.showDayPopover = function(e, dateStr, customRect = null) {
+      if (e) e.stopPropagation(); 
       const popover = document.getElementById('calendar-popover');
       const title = document.getElementById('popover-title');
       const content = document.getElementById('popover-content');
@@ -752,9 +754,9 @@
       let html = '';
       dayTasks.forEach(t => {
         const team = TEAMS.find(x => x.id === t.teamId);
-        // 담당자명을 제거하고, padding(여백)과 margin을 최소화하여 높이를 대폭 줄였습니다.
+        // 모바일 사용성을 위해 팝업 내부의 항목은 싱글 클릭(onclick)만으로도 수정 창이 열리게 설정
         html += `
-          <div ondblclick="window.openEditTaskModal('${t.id}')" class="flex flex-col px-2.5 py-1.5 rounded-[8px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 transition-opacity">
+          <div onclick="window.openEditTaskModal('${t.id}')" class="flex flex-col px-2.5 py-1.5 rounded-[8px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 transition-opacity active:scale-[0.98]">
             <div class="flex justify-between items-center mb-0.5">
               <span class="${team.text} text-[9px] font-bold px-1.5 py-0.5 bg-white/60 rounded-[4px] border ${team.border}">${team.name}</span>
               <span class="text-[10px] text-[#48484A] font-bold">${t.startTime}</span>
@@ -769,19 +771,34 @@
       popover.classList.add('flex'); 
       
       setTimeout(() => {
-        const rect = e.target.getBoundingClientRect();
-        let top = rect.top + window.scrollY;
-        let left = rect.left + window.scrollX + rect.width + 10;
+        const rect = customRect || (e ? e.target.getBoundingClientRect() : {top: 0, left: 0, width: 0, height: 0});
 
-        if (left + 256 > window.innerWidth) {
-          left = rect.left + window.scrollX - 256 - 10;
-        }
-        if (top + popover.offsetHeight > window.innerHeight) {
-          top = window.innerHeight - popover.offsetHeight - 20;
+        if (window.innerWidth <= 1024) {
+            // 모바일 및 태블릿 화면: 팝업을 화면 정중앙에 완벽하게 고정
+            popover.style.left = '50%';
+            popover.style.top = '50%';
+            popover.style.transform = 'translate(-50%, -50%)';
+        } else {
+            // PC 화면: 클릭한 셀 옆에 배치
+            let top = rect.top; // 팝업이 fixed 이므로 스크롤 무시하고 뷰포트 기준 좌표 사용
+            let left = rect.left + rect.width + 10;
+
+            // 우측 화면 밖으로 나갈 경우 좌측으로 이동
+            if (left + popover.offsetWidth > window.innerWidth) {
+              left = rect.left - popover.offsetWidth - 10;
+            }
+
+            // 하단 화면 밖으로 나갈 경우 위로 올림
+            if (top + popover.offsetHeight > window.innerHeight) {
+              top = window.innerHeight - popover.offsetHeight - 15;
+            }
+            if (top < 10) top = 10; // 상단 잘림 방지
+
+            popover.style.left = left + 'px';
+            popover.style.top = top + 'px';
+            popover.style.transform = 'none'; // 중앙 정렬 해제
         }
 
-        popover.style.top = top + 'px';
-        popover.style.left = left + 'px';
         popover.classList.remove('opacity-0', 'pointer-events-none');
         popover.classList.add('opacity-100', 'pointer-events-auto');
         feather.replace();
@@ -804,6 +821,41 @@
         window.closeDayPopover();
       }
     });
+
+    // --- [모바일/PC 맞춤형 셀 클릭 이벤트 핸들러] ---
+    window.handleCellClick = function(event, dateStr) {
+      const currentTime = new Date().getTime();
+      const timeDiff = currentTime - lastClickTime;
+
+      // 더블 탭 감지 (400ms 이내에 같은 날짜를 연속 터치/클릭 시) -> 일정 등록 창 오픈
+      if (timeDiff < 400 && lastClickDate === dateStr) {
+        window.openModal(new Date(dateStr));
+        window.closeDayPopover();
+        lastClickTime = 0; // 초기화
+        return;
+      }
+      
+      lastClickTime = currentTime;
+      lastClickDate = dateStr;
+
+      // 렌더링(updateAll) 전에 셀의 현재 화면 위치 저장
+      const rect = event.currentTarget.getBoundingClientRect();
+      
+      // 싱글 클릭 시: 날짜 선택 로직은 공통 적용
+      window.selectedDate = new Date(dateStr);
+      window.selectedTaskId = null;
+      updateAll();
+
+      // 모바일/태블릿 (가로 1024px 이하) 환경이면 무조건 일정을 팝업으로 호출
+      if (window.innerWidth <= 1024) {
+        const dayTasks = getFilteredTasks().filter(t => t.startDate <= dateStr && t.endDate >= dateStr);
+        // 일정이 1개라도 있으면 팝업 띄우기
+        if (dayTasks.length > 0) {
+          window.showDayPopover(null, dateStr, rect);
+        }
+      }
+    };
+
 
     // --- [캘린더 렌더링 - 레이아웃 완벽 통일 개선] ---
     function renderCalendar() {
@@ -855,14 +907,11 @@
           else if (isRedDay) numColorClass = 'text-[#FF3B30]';
           else if (isSaturday) numColorClass = 'text-[#007AFF]';
 
-          // 날짜 숫자 (절대 좌표)
           const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-6 h-6 flex items-center justify-center rounded-full shadow-md font-bold text-white">${dayNum}</span>` : `<span class="w-6 h-6 flex items-center justify-center font-bold ${numColorClass}">${dayNum}</span>`;
           const dateLabel = `<div class="absolute top-1.5 left-1.5 z-10">${numDisplay}</div>`;
           
-          // 공휴일 글씨 (절대 좌표, 일정 뒤에 깔림)
           const holidayLabel = holidayName ? `<span class="absolute top-1.5 right-1.5 text-[10px] font-bold text-[#FF3B30] truncate text-right bg-white/60 px-1 rounded z-0">${holidayName}</span>` : '';
 
-          // 일정 컨테이너 (좌측 여백 26px 확보하여 날짜와 겹치지 않고 가로폭 통일)
           let tasksHtml = `
             <div class="flex items-start w-full h-full relative z-20 pt-[2px]">
                <div class="w-[26px] shrink-0"></div> <!-- 날짜 공간만큼 비워두기 -->
@@ -870,7 +919,7 @@
           `;
 
           if (dayTasks.length > 0) {
-              const MAX_VISIBLE = 4; // 화면 높이를 고려하여 표시 개수를 4개로 증가
+              const MAX_VISIBLE = 4; // PC 기준 기본 4개 보여줌
               
               if (dayTasks.length <= MAX_VISIBLE) {
                   dayTasks.forEach(t => {
@@ -886,7 +935,6 @@
                       `;
                   });
               } else {
-                  // 초과 시: MAX_VISIBLE - 1 개까지는 그대로 표시 (총 3개)
                   for(let j=0; j<MAX_VISIBLE-1; j++) {
                       const t = dayTasks[j];
                       const team = TEAMS.find(x => x.id === t.teamId);
@@ -901,7 +949,6 @@
                       `;
                   }
 
-                  // 마지막 줄: 좌측에 일정 표시, 우측 끝에 +N개 미니 버튼 표시
                   const tLast = dayTasks[MAX_VISIBLE-1];
                   const teamLast = TEAMS.find(x => x.id === tLast.teamId);
                   const hiddenCount = dayTasks.length - MAX_VISIBLE;
@@ -935,7 +982,8 @@
           cellContent = `<div class="text-[14px] md:text-[15px] font-bold p-1">${dayNum > 0 ? dayNum : ''}</div>`;
         }
 
-        const onClickAttr = isCurrentMonth ? `onclick="window.handleDateClick('${cellDateStr}')" ondblclick="window.openModal(new Date('${cellDateStr}'))"` : '';
+        // [중요] 기존 onclick, ondblclick 대신 JS 커스텀 더블클릭 이벤트인 handleCellClick 통합 적용
+        const onClickAttr = isCurrentMonth ? `onclick="window.handleCellClick(event, '${cellDateStr}')"` : '';
         gridHtml += `<div class="${cellClasses}" ${onClickAttr}>${cellContent}</div>`;
       }
      
@@ -1033,6 +1081,7 @@
     window.handlePrevMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); updateAll(); };
     window.handleNextMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); updateAll(); };
     
+    // (기존의 handleDateClick는 직접 호출하지 않고 handleCellClick을 통해 우회 처리합니다.)
     window.handleDateClick = function(dateStr) { 
       window.selectedDate = new Date(dateStr); 
       window.selectedTaskId = null; 
