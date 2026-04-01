@@ -265,7 +265,9 @@
         </div>
     </div>
   </main>
-</div> <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 sm:p-6 hidden flex transition-all duration-300">
+</div> 
+
+<div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 sm:p-6 hidden flex transition-all duration-300">
     <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-[600px] overflow-hidden flex flex-col max-h-[92vh] animation-fade-in border border-gray-300">
      
       <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-white">
@@ -413,6 +415,14 @@
     </div>
   </div>
 
+  <div id="calendar-popover" class="fixed hidden z-[9999] bg-white rounded-[16px] shadow-[0_10px_40px_rgba(0,0,0,0.2)] border border-gray-200 w-64 max-h-[350px] flex-col overflow-hidden transition-opacity duration-200 opacity-0 pointer-events-none">
+    <div class="flex justify-between items-center px-4 py-3 border-b border-gray-100 bg-[#F9F9FB] shrink-0">
+      <h4 id="popover-title" class="text-[14px] font-bold text-[#1D1D1F]"></h4>
+      <button onclick="window.closeDayPopover()" class="text-gray-400 hover:text-gray-800 transition-colors"><i data-feather="x" class="w-4 h-4"></i></button>
+    </div>
+    <div id="popover-content" class="flex flex-col gap-2 p-3 overflow-y-auto overscroll-contain"></div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -451,14 +461,14 @@
     /* -------------------------------------------------------------------------- */
     let tasks = [];
     let currentDate = new Date();
-    window.selectedDate = new Date(); // 모달 오픈시 참조 가능하도록 window 등록
+    window.selectedDate = new Date(); 
     let filterTeam = 'all';
     let searchQuery = '';
     let currentEditTaskId = null;
     let isDeleteConfirming = false;
-    window.selectedTaskId = null; // 포커스 업무 단일 조회를 위한 전역 상태 추가
+    window.selectedTaskId = null; 
 
-    // 메일 발송용 구글 앱스 스크립트 API URL (사용자님께서 제공해주신 최종 URL 반영)
+    // 메일 발송용 구글 앱스 스크립트 API URL
     window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwwbk4CijVvlht7m-8L0sQxSg4Kp3zz403BIV7T_KuULy4hApCYJ68C86AnUo-nFtkNow/exec";
 
     /* -------------------------------------------------------------------------- */
@@ -480,10 +490,10 @@
     let currentUser = null;
     let unsubscribeTasks = null;
     let isFirstLoad = true;
-    window.isPasswordChanging = false; // 화면 깜빡임 방지용 플래그
+    window.isPasswordChanging = false;
 
     onAuthStateChanged(auth, (user) => {
-      if (window.isPasswordChanging) return; // 비밀번호 변경 중일 때 UI 전환 방지
+      if (window.isPasswordChanging) return; 
 
       currentUser = user;
       const loginContainer = document.getElementById('login-container');
@@ -491,12 +501,10 @@
       const initialLoader = document.getElementById('initial-loader');
 
       if (user) {
-        // 로그인 성공 시 메인 화면 표시
         loginContainer.classList.add('hidden');
         appContainer.classList.remove('hidden');
         setupRealtimeSync();
       } else {
-        // 로그아웃 상태일 시 로그인 창 표시
         initialLoader.classList.add('hidden');
         appContainer.classList.add('hidden');
         loginContainer.classList.remove('hidden');
@@ -608,7 +616,7 @@
         return;
       }
      
-      // --- [시트 1: 전체업무 데이터 생성] ---
+      // --- [시트 1: 전체업무] ---
       const headers1 = ['일련번호', '업무 제목', '구분', '소 파트', '담당자', '장소', '시작일자', '종료일자', '시작시간', '종료시간', '주요업무 여부', '상세메모'];
       const rows1 = tasks.map(task => {
         const teamName = TEAMS.find(t => t.id === task.teamId)?.name || '알 수 없음';
@@ -621,65 +629,54 @@
           isFocusText, task.description || ''
         ];
       });
-      
       const ws1 = XLSX.utils.aoa_to_sheet([headers1, ...rows1]);
 
-      // --- [시트 2: 주간업무 데이터 생성 (분리 로직 적용)] ---
+      // --- [시트 2: 주간업무] ---
       const headers2 = ['소속파트', '상세메모', '담당자', '시작일자'];
       const rows2 = [];
-      
-      // 1순위: 소속파트(TEAMS 배열 인덱스), 2순위: 시작시간 정렬 맵핑
       const teamOrder = {};
       TEAMS.forEach((t, i) => teamOrder[t.id] = i);
 
       const sortedTasks = [...tasks].sort((a, b) => {
         const teamA = teamOrder[a.teamId] ?? 99;
         const teamB = teamOrder[b.teamId] ?? 99;
-        if (teamA !== teamB) return teamA - teamB; // 파트 순위가 다르면 파트 우선순위로 정렬
-        return (a.startTime || '').localeCompare(b.startTime || ''); // 파트가 같으면 시작시간 정렬
+        if (teamA !== teamB) return teamA - teamB;
+        return (a.startTime || '').localeCompare(b.startTime || '');
       });
 
-      // 각 업무의 상세 메모를 줄바꿈으로 쪼개서 각각의 행(Row)으로 푸시
       sortedTasks.forEach(task => {
-        if (!task.description) return; // 상세 메모가 아예 없으면 건너뜀
-        
+        if (!task.description) return; 
         const teamName = TEAMS.find(t => t.id === task.teamId)?.name || '알 수 없음';
         const assigneeName = task.assignee || '';
-        const startDate = task.startDate || ''; // 시작일자 추출
-        const lines = task.description.split('\n'); // 엔터 단위로 쪼개기
+        const startDate = task.startDate || ''; 
+        const lines = task.description.split('\n'); 
         
-        let isFirstLine = true; // 첫 번째 줄인지 확인하는 플래그
-        
+        let isFirstLine = true; 
         lines.forEach(line => {
-          const trimmedLine = line.replace(/\r/g, '').trim(); // 불필요한 공백/캐리지리턴 제거
-          if (trimmedLine !== '') { // 완전히 빈 줄은 엑셀 행으로 만들지 않음
+          const trimmedLine = line.replace(/\r/g, '').trim();
+          if (trimmedLine !== '') {
             if (isFirstLine) {
-              // 첫 번째 줄에는 소속파트, 담당자, 시작일자를 모두 넣어줌
               rows2.push([teamName, trimmedLine, assigneeName, startDate]);
-              isFirstLine = false; // 이후 줄부터는 false가 됨
+              isFirstLine = false;
             } else {
-              // 두 번째 줄부터는 상세메모 외의 값을 공란('')으로 처리
               rows2.push(['', trimmedLine, '', '']);
             }
           }
         });
       });
-
       const ws2 = XLSX.utils.aoa_to_sheet([headers2, ...rows2]);
 
-      // --- [엑셀 워크북(파일) 생성 및 2개 시트 병합] ---
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws1, "전체업무");
       XLSX.utils.book_append_sheet(wb, ws2, "주간업무");
      
-      // 엑셀 다운로드 실행
       XLSX.writeFile(wb, `동반성장부_업무일정_${formatDateForInput(new Date())}.xlsx`);
       showToast('엑셀 파일 다운로드가 완료되었습니다.', 'success');
     }
 
     function updateSyncStatus(mode) {
       const statusEl = document.getElementById('sync-status');
-      if (!statusEl) return; // 요소가 렌더링되지 않았을 때의 에러 방지
+      if (!statusEl) return; 
 
       const statusConfig = {
         loading: { html: `<i data-feather="refresh-cw" class="w-3 h-3 spin-slow"></i> 통신 중`, classes: "bg-[#007AFF]/10 text-[#007AFF]" },
@@ -727,7 +724,6 @@
           const team = TEAMS.find(t => t.id === task.teamId);
           const dateRangeBadge = formatTaskDateRange(task.startDate, task.endDate);
 
-          // 클릭하면 해당 업무 1개만 필터링해서 보여주도록 handleFocusTaskClick 호출
           keyTasksHtml += `
             <div onclick="window.handleFocusTaskClick('${task.id}', '${task.startDate}')" ondblclick="window.openEditTaskModal('${task.id}')" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-white hover:bg-[#F2F2F7] border border-gray-300 shadow-sm select-none" title="클릭하여 상세 일정 보기 / 더블 클릭하여 수정">
               <span class="text-[11px] font-bold text-[#1D1D1F] bg-[#F2F2F7] px-2 py-0.5 rounded-[6px] border border-gray-200">${dateRangeBadge}</span>
@@ -740,6 +736,78 @@
       document.getElementById('key-tasks-container').innerHTML = keyTasksHtml;
     }
 
+    // --- [팝업 열기/닫기 로직] ---
+    window.showDayPopover = function(e, dateStr) {
+      e.stopPropagation(); // 셀 클릭(상세일정 연동) 방지
+      const popover = document.getElementById('calendar-popover');
+      const title = document.getElementById('popover-title');
+      const content = document.getElementById('popover-content');
+
+      const d = new Date(dateStr);
+      title.innerText = `${d.getMonth() + 1}월 ${d.getDate()}일 전체 일정`;
+
+      const dayTasks = getFilteredTasks().filter(t => t.startDate <= dateStr && t.endDate >= dateStr)
+                               .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+      let html = '';
+      dayTasks.forEach(t => {
+        const team = TEAMS.find(x => x.id === t.teamId);
+        html += `
+          <div ondblclick="window.openEditTaskModal('${t.id}')" class="flex flex-col p-2.5 rounded-[10px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 transition-opacity">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="${team.text} text-[10px] font-bold px-1.5 py-0.5 bg-white/60 rounded-[4px] border ${team.border}">${team.name}</span>
+              <span class="text-[11px] text-[#48484A] font-bold">${t.startTime}</span>
+            </div>
+            <span class="text-[#1D1D1F] text-[13px] font-bold leading-snug">${t.title}</span>
+            <span class="text-[#48484A] text-[11px] font-semibold mt-1">${t.assignee}</span>
+          </div>
+        `;
+      });
+      content.innerHTML = html;
+
+      popover.classList.remove('hidden');
+      popover.classList.add('flex'); // hidden 해제 후 flex 적용
+      
+      setTimeout(() => {
+        const rect = e.target.getBoundingClientRect();
+        let top = rect.top + window.scrollY;
+        let left = rect.left + window.scrollX + rect.width + 10;
+
+        // 팝업이 화면 밖으로 넘어가면 위치 조정
+        if (left + 256 > window.innerWidth) {
+          left = rect.left + window.scrollX - 256 - 10;
+        }
+        if (top + popover.offsetHeight > window.innerHeight) {
+          top = window.innerHeight - popover.offsetHeight - 20;
+        }
+
+        popover.style.top = top + 'px';
+        popover.style.left = left + 'px';
+        popover.classList.remove('opacity-0', 'pointer-events-none');
+        popover.classList.add('opacity-100', 'pointer-events-auto');
+        feather.replace();
+      }, 10);
+    };
+
+    window.closeDayPopover = function() {
+      const popover = document.getElementById('calendar-popover');
+      popover.classList.remove('opacity-100', 'pointer-events-auto');
+      popover.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        popover.classList.add('hidden');
+        popover.classList.remove('flex');
+      }, 200);
+    };
+
+    // 팝업 외부 클릭 시 닫기
+    document.addEventListener('click', (e) => {
+      const popover = document.getElementById('calendar-popover');
+      if (!popover.classList.contains('hidden') && !popover.contains(e.target)) {
+        window.closeDayPopover();
+      }
+    });
+
+    // --- [캘린더 렌더링 - 레이아웃 개선] ---
     function renderCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
@@ -771,7 +839,7 @@
         const isSaturday = i % 7 === 6;
         const isRedDay = isCurrentMonth && (isSunday || holidayName);
        
-        let cellClasses = `relative border-r border-b border-gray-200 transition-colors p-1 md:p-1.5 flex flex-col h-full overflow-hidden `;
+        let cellClasses = `relative border-r border-b border-gray-200 transition-colors p-1.5 flex flex-col h-full overflow-hidden `;
         if (!isCurrentMonth) cellClasses += `bg-[#F9F9FB] text-black/15 `;
         else {
           cellClasses += `bg-white hover:bg-gray-50 cursor-pointer `;
@@ -789,53 +857,57 @@
           else if (isRedDay) numColorClass = 'text-[#FF3B30]';
           else if (isSaturday) numColorClass = 'text-[#007AFF]';
 
-          const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-full shadow-md font-bold">${dayNum}</span>` : dayNum;
-          const holidayLabel = holidayName ? `<span class="text-[10px] font-bold text-[#FF3B30] truncate ml-1">${holidayName}</span>` : '';
+          const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-6 h-6 flex items-center justify-center rounded-full shadow-md font-bold">${dayNum}</span>` : dayNum;
+          
+          // 공휴일 글씨를 우측 상단에 절대 위치(Absolute)로 고정하여 레이아웃을 해치지 않음
+          const holidayLabel = holidayName ? `<span class="absolute top-1.5 right-1.5 text-[10px] font-bold text-[#FF3B30] truncate text-right bg-white/70 px-1 rounded z-0">${holidayName}</span>` : '';
 
-          const visibleTasks = dayTasks.slice(0, 5);
-          const remainingCount = dayTasks.length - 5;
-
-          let task1Html = '';
-          if (visibleTasks[0]) {
-            const t = visibleTasks[0];
-            const team = TEAMS.find(x => x.id === t.teamId);
-            task1Html = `
-              <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')" class="flex-1 min-w-0 ${team.bg} ${team.text} px-1.5 py-0.5 rounded-[4px] text-[10px] md:text-[11px] font-bold truncate border ${team.border}" title="${t.title}">
-                ${t.title}
-              </div>
-            `;
-          }
-
-          let subTasksHtml = '';
-          if (visibleTasks.length > 1) {
-            subTasksHtml = '<div class="grid grid-cols-2 gap-1 mt-1">';
-            visibleTasks.slice(1).forEach(t => {
-              const team = TEAMS.find(x => x.id === t.teamId);
-              subTasksHtml += `
-                <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')" class="${team.bg} ${team.text} px-1 py-0.5 rounded-[4px] text-[9px] md:text-[10px] font-bold truncate border ${team.border}" title="${t.title}">
-                  ${t.title}
-                </div>
-              `;
-            });
-            subTasksHtml += '</div>';
-          }
-
-          const moreHtml = remainingCount > 0 ? `<div class="text-[10px] text-[#48484A] font-bold mt-1 ml-0.5 bg-gray-100 px-1 rounded w-fit">+ ${remainingCount}개</div>` : '';
-
-          cellContent = `
-            <div class="flex items-center gap-1.5 min-h-[28px] w-full">
-              <div class="text-[14px] md:text-[15px] font-bold ${numColorClass} shrink-0 w-6 md:w-7 flex items-center justify-center">${numDisplay}</div>
-              ${holidayLabel || task1Html}
+          // 1. 헤더 영역 (숫자 및 공휴일) - 높이 고정
+          const cellHeader = `
+            <div class="flex items-start justify-between w-full h-[26px] mb-1 relative z-10">
+               <div class="text-[14px] font-bold ${numColorClass} shrink-0 w-6 h-6 flex items-center justify-center">${numDisplay}</div>
+               ${holidayLabel}
             </div>
-            ${holidayLabel && task1Html ? `<div class="mt-0.5">${task1Html}</div>` : ''}
-            ${subTasksHtml}
-            ${moreHtml}
           `;
+
+          // 2. 일정 블록 영역 - 1줄 1개, 최대 2개 표시 후 +N
+          let tasksHtml = '<div class="flex flex-col gap-1 w-full flex-1 overflow-hidden relative z-10">';
+          const MAX_VISIBLE = 2; // 최대 2개까지만 정상 노출 (그 이상은 +버튼 처리)
+          const dayTasksCount = dayTasks.length;
+
+          if (dayTasksCount > 0) {
+              // 3개 이상이면 2개만 보여주고, 나머지는 숨김 처리
+              let visibleCount = dayTasksCount > MAX_VISIBLE ? MAX_VISIBLE : dayTasksCount;
+              const visibleTasks = dayTasks.slice(0, visibleCount);
+              const hiddenCount = dayTasksCount - visibleCount;
+
+              visibleTasks.forEach(t => {
+                  const team = TEAMS.find(x => x.id === t.teamId);
+                  tasksHtml += `
+                    <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')"
+                         class="w-full ${team.bg} ${team.text} px-1.5 py-0.5 rounded-[4px] text-[11px] font-bold truncate border ${team.border} shadow-sm leading-tight hover:opacity-80 transition-opacity"
+                         title="${t.title}">
+                      ${t.title}
+                    </div>
+                  `;
+              });
+
+              if (hiddenCount > 0) {
+                  tasksHtml += `
+                    <div onclick="window.showDayPopover(event, '${cellDateStr}')"
+                         class="w-full bg-gray-100 text-[#48484A] hover:bg-[#007AFF] hover:text-white hover:border-[#007AFF] px-1.5 py-0.5 rounded-[4px] text-[11px] font-bold text-center border border-gray-200 cursor-pointer transition-all shadow-sm">
+                      + ${hiddenCount}개 더보기
+                    </div>
+                  `;
+              }
+          }
+          tasksHtml += '</div>';
+
+          cellContent = cellHeader + tasksHtml;
         } else {
           cellContent = `<div class="text-[14px] md:text-[15px] font-bold p-1">${dayNum > 0 ? dayNum : ''}</div>`;
         }
 
-        // 일반 캘린더 날짜를 클릭하면 특정 포커스 선택이 해제됨(모든 업무 보이게)
         const onClickAttr = isCurrentMonth ? `onclick="window.handleDateClick('${cellDateStr}')" ondblclick="window.openModal(new Date('${cellDateStr}'))"` : '';
         gridHtml += `<div class="${cellClasses}" ${onClickAttr}>${cellContent}</div>`;
       }
@@ -861,7 +933,6 @@
       const filtered = getFilteredTasks();
       let dayTasks = filtered.filter(t => t.startDate <= dateStr && t.endDate >= dateStr).sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-      // 특정 포커스 업무가 선택된 경우, 그 업무 1개만 보여주도록 필터링
       if (window.selectedTaskId) {
         dayTasks = dayTasks.filter(t => t.id === window.selectedTaskId);
       }
@@ -935,10 +1006,12 @@
     window.handlePrevMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); updateAll(); };
     window.handleNextMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); updateAll(); };
     
-    // 캘린더 내 특정 날짜를 클릭하면, 단일 포커스 선택이 초기화되어 전체 일정이 보입니다.
-    window.handleDateClick = function(dateStr) { window.selectedDate = new Date(dateStr); window.selectedTaskId = null; updateAll(); };
+    window.handleDateClick = function(dateStr) { 
+      window.selectedDate = new Date(dateStr); 
+      window.selectedTaskId = null; 
+      updateAll(); 
+    };
     
-    // 이달의 포커스 업무를 클릭했을 때 실행할 새로운 함수
     window.handleFocusTaskClick = function(taskId, dateStr) {
       window.selectedDate = new Date(dateStr);
       window.selectedTaskId = taskId;
@@ -959,7 +1032,6 @@
         await signInWithEmailAndPassword(auth, email, password);
         showToast('로그인 성공!', 'success');
       } catch (error) {
-        // 오류가 발생하면 안내 메시지를 띄움 (콘솔 로그는 사용자에게 혼란을 줄 수 있으므로 제거)
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
            showToast('등록되지 않은 이메일이거나 비밀번호가 틀렸습니다. 관리자에게 문의해주세요.', 'error');
         } else {
@@ -1015,16 +1087,11 @@
       btn.innerHTML = `<i data-feather="loader" class="w-4 h-4 spin-slow"></i> 변경 중...`;
       feather.replace();
 
-      window.isPasswordChanging = true; // 대시보드로 넘어가지 않도록 차단
+      window.isPasswordChanging = true; 
 
       try {
-        // 1. 현재 정보로 백그라운드 로그인 수행
         const userCredential = await signInWithEmailAndPassword(auth, email, oldPwd);
-        
-        // 2. 비밀번호 업데이트
         await updatePassword(userCredential.user, newPwd);
-        
-        // 3. 즉시 로그아웃 처리하여 로그인 화면 유지
         await signOut(auth);
 
         showToast('비밀번호가 성공적으로 변경되었습니다. 새 비밀번호로 로그인해주세요.', 'success');
@@ -1091,7 +1158,6 @@
       resetDeleteBtn();
       window.handleTeamChange();
 
-      // 새 일정 등록 시 메일 컨테이너 숨김 및 초기화
       const emailContainer = document.getElementById('email_action_container');
       emailContainer.classList.add('hidden');
       emailContainer.classList.remove('flex');
@@ -1102,9 +1168,9 @@
       const task = tasks.find(x => x.id === id);
       if(!task) return;
 
-      const isLegacyTask = !task.creatorEmail; // 예전 시스템에서 등록된 글인지 확인
-      const isCreator = task.creatorEmail === currentUser.email; // 본인이 작성했는지 확인
-      const canEdit = isLegacyTask || isCreator; // 본인 글이거나 예전 글이면 수정 허용 (데이터가 잠기지 않게)
+      const isLegacyTask = !task.creatorEmail; 
+      const isCreator = task.creatorEmail === currentUser.email; 
+      const canEdit = isLegacyTask || isCreator; 
 
       document.getElementById('modal-title').innerText = canEdit ? "일정 상세 및 편집" : "일정 상세 조회";
       document.getElementById('btn_submit').innerText = "저장";
@@ -1125,7 +1191,6 @@
       isDeleteConfirming = false;
       resetDeleteBtn();
       
-      // 버튼 제어
       if (canEdit) {
         window.handleTeamChange();
         document.getElementById('btn_submit').classList.remove('hidden');
@@ -1135,21 +1200,18 @@
         document.getElementById('btn_delete').classList.add('hidden');
       }
 
-      // 이메일(지시사항) 컨테이너 제어
       const emailContainer = document.getElementById('email_action_container');
       const emailActive = document.getElementById('email_active_view');
       const emailLegacy = document.getElementById('email_legacy_view');
       const emailForm = document.getElementById('email_form');
 
       if (isLegacyTask) {
-        // 작성자 정보가 없는 예전 일정
         emailContainer.classList.remove('hidden');
         emailContainer.classList.add('flex');
         emailActive.classList.add('hidden');
         emailActive.classList.remove('flex');
         emailLegacy.classList.remove('hidden');
       } else if (!isCreator) {
-        // 작성자가 명확한 타인의 일정
         emailContainer.classList.remove('hidden');
         emailContainer.classList.add('flex');
         emailActive.classList.remove('hidden');
@@ -1160,7 +1222,6 @@
         emailForm.classList.remove('flex');
         document.getElementById('email_content').value = '';
       } else {
-        // 본인의 일정
         emailContainer.classList.add('hidden');
         emailContainer.classList.remove('flex');
       }
@@ -1211,7 +1272,6 @@
 
       const taskId = currentEditTaskId || Date.now().toString();
       
-      // 기존 작성자 이메일 유지 또는 신규 작성자 이메일 저장
       const creatorEmail = existingTask && existingTask.creatorEmail ? existingTask.creatorEmail : (currentUser.email || '');
 
       const finalData = { ...formData, id: taskId, creatorEmail: creatorEmail };
@@ -1305,19 +1365,17 @@
       btn.innerHTML = `<i data-feather="loader" class="w-4 h-4 spin-slow"></i> 발송 중...`;
       feather.replace();
 
-      // 요청하신 고정된 메일 제목
       const subject = "업무 관련 지시사항(부서 캘린더 기반)";
       const body = `[업무명: ${task.title}]\n\n${content}\n\n--------------------------------------------\n* 발신자: ${currentUser.email}\n* 본 메일은 HD현대삼호 동반성장부 통합 워크스페이스에서 자동 발송되었습니다.`;
 
       try {
         const response = await fetch(window.EMAIL_API_URL, {
           method: 'POST',
-          // CORS 오류 방지를 위해 text/plain 사용
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
             to: task.creatorEmail,
-            replyTo: currentUser.email, // 답장(Reply) 시 발송자 본인에게 돌아가도록 설정
-            senderName: "동반성장부 통합 워크스페이스", // 발신자 이름을 공식 명칭으로 고정
+            replyTo: currentUser.email,
+            senderName: "동반성장부 통합 워크스페이스",
             subject: subject,
             body: body
           })
