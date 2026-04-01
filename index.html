@@ -727,7 +727,7 @@
           const dateRangeBadge = formatTaskDateRange(task.startDate, task.endDate);
 
           keyTasksHtml += `
-            <div ondblclick="window.openEditTaskModal('${task.id}')" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-white hover:bg-[#F2F2F7] border border-gray-300 shadow-sm select-none" title="더블 클릭하여 수정">
+            <div onclick="window.handleDateClick('${task.startDate}')" ondblclick="window.openEditTaskModal('${task.id}')" class="cursor-pointer px-3 py-2 rounded-[14px] text-[13px] flex items-center gap-2 transition-all bg-white hover:bg-[#F2F2F7] border border-gray-300 shadow-sm select-none" title="클릭하여 상세 일정 보기 / 더블 클릭하여 수정">
               <span class="text-[11px] font-bold text-[#1D1D1F] bg-[#F2F2F7] px-2 py-0.5 rounded-[6px] border border-gray-200">${dateRangeBadge}</span>
               <div class="w-2 h-2 rounded-full" style="background-color: ${team.hex};"></div>
               <span class="font-bold text-[#1D1D1F] truncate max-w-[150px]">${task.title}</span>
