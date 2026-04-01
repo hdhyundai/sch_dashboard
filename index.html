@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HD현대삼호 동반성장부 통합 업무 워크스페이스</title>
  
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
  
-  <!-- Feather Icons -->
   <script src="https://unpkg.com/feather-icons"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
  
-  <!-- Pretendard Font -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 
   <style>
@@ -76,10 +75,8 @@
 </head>
 <body class="min-h-screen bg-[#F2F2F7] text-[#1D1D1F] flex flex-col relative selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Pretendard', system-ui, sans-serif;">
 
-  <!-- 토스트 알림 컨테이너 -->
   <div id="toast-container" class="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
-  <!-- --- [Login Area] --- -->
   <div id="login-container" class="fixed inset-0 bg-[#F2F2F7] z-[200] flex items-center justify-center hidden">
     <div class="bg-white p-8 md:p-10 rounded-[32px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-gray-200 w-full max-w-[400px] mx-4 animation-fade-in">
       <div class="flex flex-col items-center mb-8">
@@ -101,7 +98,6 @@
         <button type="submit" id="btn_login" class="mt-2 w-full py-3.5 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-[12px] text-[15px] font-bold shadow-md transition-all active:scale-95 border border-transparent flex justify-center items-center gap-2">
           <span>로그인</span>
         </button>
-        <p class="text-center text-[12px] text-[#86868B] font-bold mt-1">사내 관리자에게 부여받은 계정으로 로그인해주세요.</p>
         <div class="mt-2 text-center">
           <button type="button" onclick="window.openPasswordModal()" class="text-[13px] text-[#48484A] font-bold hover:text-[#007AFF] transition-colors underline underline-offset-2">
             비밀번호를 변경하시려면 여기를 클릭하세요
@@ -111,19 +107,16 @@
     </div>
   </div>
 
-  <!-- 메인 앱 컨테이너 (로그인 전엔 숨김) -->
   <div id="app-container" class="flex-1 flex flex-col min-h-screen hidden w-full">
-    <!-- --- [Header Area] --- -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-300 px-5 md:px-10 py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all">
      
-      <!-- 로고 및 타이틀 -->
       <div class="flex items-center gap-3.5 w-full md:w-auto">
         <div class="w-10 h-10 md:w-11 md:h-11 rounded-[12px] bg-gradient-to-br from-[#007AFF] to-[#0056b3] flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(0,122,255,0.3)]">
           <i data-feather="calendar" class="text-white w-5 h-5"></i>
         </div>
         <div class="flex flex-col justify-center">
           <h1 class="text-[17px] md:text-[19px] font-bold tracking-tight text-[#1D1D1F] leading-tight">
-            HD현대삼호 동반성장부! 화이팅~☆ 수석님 쵝오~☆
+            HD현대삼호 동반성장부
           </h1>
           <div class="flex items-center gap-2 mt-0.5">
             <p class="text-[13px] text-[#48484A] font-semibold">통합 업무 워크스페이스</p>
@@ -134,9 +127,7 @@
         </div>
       </div>
 
-      <!-- 우측 컨트롤 패널 -->
       <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto">
-        <!-- 검색창 -->
         <div class="relative flex-1 md:flex-none">
           <i data-feather="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#48484A]"></i>
           <input
@@ -148,17 +139,15 @@
           />
         </div>
 
-      <!-- 엑셀 다운로드 버튼 -->
       <button
-        onclick="window.exportToCSV()"
+        onclick="window.exportToExcel()"
         class="bg-white hover:bg-gray-100 border border-gray-300 text-[#1D1D1F] active:scale-95 px-3.5 py-2 rounded-full text-[14px] font-bold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-sm"
-        title="현재 일정을 엑셀(CSV) 파일로 다운로드합니다."
+        title="현재 일정을 엑셀 파일로 다운로드합니다."
       >
         <i data-feather="download" class="w-4 h-4"></i>
         <span class="hidden sm:inline">다운로드</span>
       </button>
 
-      <!-- 일정 추가 버튼 -->
       <button
         onclick="window.openModal()"
         class="bg-[#007AFF] hover:bg-[#0062CC] active:scale-95 text-white px-4 md:px-5 py-2 rounded-full text-[14px] font-bold flex items-center gap-1.5 transition-all whitespace-nowrap shadow-[0_4px_12px_rgba(0,122,255,0.25)]"
@@ -167,7 +156,6 @@
         <span>새 일정</span>
       </button>
 
-      <!-- 로그아웃 버튼 (아이콘 최소화) -->
       <button
         onclick="window.handleLogout()"
         class="p-2 md:p-2.5 bg-[#F2F2F7] hover:bg-[#E5E5EA] border border-gray-300 text-[#FF3B30] active:scale-95 rounded-full transition-all flex items-center justify-center ml-1 md:ml-0"
@@ -178,10 +166,8 @@
     </div>
   </header>
 
-  <!-- --- [Main Content Area] --- -->
   <main class="flex-1 p-4 md:p-6 lg:p-8 flex flex-col xl:flex-row gap-6 max-w-[1800px] mx-auto w-full h-full min-h-0 relative">
    
-    <!-- 최초 로딩 오버레이 -->
     <div id="initial-loader" class="absolute inset-0 bg-[#F5F5F7]/80 backdrop-blur-xl z-50 flex items-center justify-center rounded-[32px] transition-opacity duration-300">
       <div class="flex flex-col items-center gap-5 bg-white p-8 rounded-[28px] shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-200">
         <div class="p-4 bg-[#007AFF]/10 rounded-full">
@@ -194,21 +180,16 @@
       </div>
     </div>
 
-    <!-- --- [Left Panel: Dashboard & Calendar] --- -->
     <div class="flex-1 flex flex-col gap-6 min-w-0 min-h-0">
      
-      <!-- 대시보드 패널 -->
       <div class="bg-white p-5 md:p-6 rounded-[28px] shadow-sm flex flex-col gap-5 shrink-0 transition-all border border-gray-300">
-        <!-- 필터 및 포커스 영역 -->
         <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
-          <!-- PC 부서 필터: 3열 2줄 레이아웃 -->
           <div class="lg:w-2/5 flex flex-col gap-3">
             <h3 class="text-[13px] font-bold text-[#3A3A3C] flex items-center gap-1.5 uppercase tracking-wider pl-1">
               <i data-feather="filter" class="w-3.5 h-3.5"></i> 파트 필터링
             </h3>
             <div id="filter-buttons" class="bg-[#E5E5EA] p-1.5 rounded-[16px] grid grid-cols-3 gap-1.5">
-              <!-- JS 주입 -->
-            </div>
+              </div>
           </div>
 
           <div class="lg:w-3/5 flex flex-col gap-3 lg:border-l border-gray-200 lg:pl-8">
@@ -216,13 +197,11 @@
               <i data-feather="star" class="w-3.5 h-3.5 text-[#FF9500]"></i> 이달의 포커스 업무
             </h3>
             <div id="key-tasks-container" class="flex flex-wrap gap-2 overflow-y-auto max-h-[100px] no-scrollbar">
-              <!-- JS 주입 -->
-            </div>
+              </div>
           </div>
         </div>
       </div>
 
-      <!-- 캘린더 패널 -->
       <div class="bg-white rounded-[28px] shadow-sm flex-1 flex flex-col overflow-hidden min-h-0 border border-gray-300">
         <div class="grid grid-cols-3 items-center p-4 md:p-5 border-b border-gray-200 min-h-[70px] shrink-0 bg-white">
           <div class="flex justify-start">
@@ -236,19 +215,16 @@
               <i data-feather="chevron-left" class="w-5 h-5"></i>
             </button>
             <h2 id="calendar-title" class="text-[20px] md:text-[22px] font-bold text-[#1D1D1F] tracking-tight min-w-[140px] text-center whitespace-nowrap">
-              <!-- JS 주입 -->
-            </h2>
+              </h2>
             <button onclick="window.handleNextMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
               <i data-feather="chevron-right" class="w-5 h-5"></i>
             </button>
           </div>
 
           <div id="calendar-legends" class="hidden md:flex flex-wrap justify-end gap-3 text-[12px] font-bold text-[#48484A]">
-            <!-- JS 주입 -->
-          </div>
+            </div>
         </div>
 
-        <!-- 요일 헤더 -->
         <div class="grid grid-cols-7 border-b border-gray-200 shrink-0 bg-[#F9F9FB]">
           <div class="text-center py-2.5 text-[12px] font-bold text-[#FF3B30]">일</div>
           <div class="text-center py-2.5 text-[12px] font-bold text-[#3A3A3C]">월</div>
@@ -259,25 +235,21 @@
           <div class="text-center py-2.5 text-[12px] font-bold text-[#007AFF]">토</div>
         </div>
 
-        <!-- 캘린더 그리드 영역 -->
         <div class="flex-1 overflow-y-auto min-h-0 bg-white no-scrollbar">
           <div class="grid grid-cols-7 grid-rows-6 h-full min-h-[500px] md:min-h-[600px] xl:min-h-[650px] border-l border-t border-gray-200" id="calendar-grid">
-            <!-- JS 주입 -->
-          </div>
+            </div>
         </div>
       </div>
     </div>
 
-    <!-- --- [Right Panel: Daily Timeline Details] --- -->
-   <div class="w-full xl:w-[380px] 2xl:w-[420px] bg-white rounded-[28px] shadow-sm flex flex-col h-[450px] md:h-[550px] xl:h-auto max-h-[calc(100vh-6rem)] xl:sticky top-[104px] shrink-0 transition-all border border-gray-300 mt-6 xl:mt-0">
+    <div class="w-full xl:w-[380px] 2xl:w-[420px] bg-white rounded-[28px] shadow-sm flex flex-col h-[450px] md:h-[550px] xl:h-auto max-h-[calc(100vh-6rem)] xl:sticky top-[104px] shrink-0 transition-all border border-gray-300 mt-6 xl:mt-0">
       <div class="p-5 md:p-6 border-b border-gray-200 flex justify-between items-start">
         <div>
           <h2 class="text-[18px] md:text-[20px] font-bold text-[#1D1D1F] mb-1 tracking-tight">
             상세 일정
           </h2>
           <p id="daily-focus-title" class="text-[14px] font-bold text-[#48484A] flex items-center">
-            <!-- JS 주입 -->
-          </p>
+            </p>
         </div>
         <button
           onclick="window.openModal(window.selectedDate)"
@@ -288,19 +260,13 @@
         </button>
       </div>
      
-      <!-- 일간 업무 리스트 -->
       <div id="daily-focus-list" class="flex-1 overflow-y-auto p-4 md:p-5 space-y-3 bg-[#F9F9FB] rounded-b-[28px] no-scrollbar">
-        <!-- JS 주입 -->
-      </div>
+        </div>
     </div>
   </main>
-</div> <!-- app-container 종료 -->
-
-  <!-- --- [Modal: Task Registration & Edit] --- -->
-  <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 sm:p-6 hidden flex transition-all duration-300">
+</div> <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 sm:p-6 hidden flex transition-all duration-300">
     <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-[600px] overflow-hidden flex flex-col max-h-[92vh] animation-fade-in border border-gray-300">
      
-      <!-- 모달 헤더 -->
       <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-white">
         <div>
           <h3 id="modal-title" class="text-[20px] font-bold text-[#1D1D1F] tracking-tight">새로운 일정</h3>
@@ -310,10 +276,8 @@
         </button>
       </div>
      
-      <!-- 모달 폼 -->
       <form id="taskForm" onsubmit="window.handleTaskSubmit(event)" class="p-6 overflow-y-auto space-y-6 bg-white no-scrollbar">
        
-        <!-- 제목 및 중요도 -->
         <div class="flex flex-col gap-3">
           <input id="f_title" required type="text" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[17px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="일정 제목" />
          
@@ -327,7 +291,6 @@
 
         <div class="h-px w-full bg-gray-200"></div>
 
-        <!-- 구분 및 소속 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">업무 구분 <span class="text-[#FF3B30]">*</span></label>
@@ -339,12 +302,10 @@
           <div>
             <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">소속 파트 <span class="text-[#FF3B30]">*</span></label>
             <select id="f_teamId" onchange="window.handleTeamChange()" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
-              <!-- JS 주입 -->
-            </select>
+              </select>
           </div>
         </div>
 
-        <!-- 담당자 및 장소 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">담당자 명 <span id="assignee_asterisk" class="text-[#FF3B30]">*</span></label>
@@ -358,7 +319,6 @@
 
         <div class="h-px w-full bg-gray-200"></div>
 
-        <!-- 날짜 및 시간 영역 -->
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -373,26 +333,23 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">시작 시간 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_startTime" required type="time" value="09:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <input id="f_startTime" required type="time" value="08:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
             </div>
             <div>
               <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">종료 시간 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_endTime" required type="time" value="18:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <input id="f_endTime" required type="time" value="17:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
             </div>
           </div>
         </div>
 
         <div class="h-px w-full bg-gray-200"></div>
 
-        <!-- 상세 메모 -->
         <div>
           <textarea id="f_description" rows="3" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all resize-none placeholder:text-[#86868B] focus:ring-4 focus:ring-[#007AFF]/10" placeholder="추가 메모를 입력하세요 (선택 사항)"></textarea>
         </div>
 
-        <!-- 메일 보내기 (편집 시에만 표시) -->
         <div id="email_action_container" class="hidden flex-col gap-2 mt-2 pt-4 border-t border-gray-200">
           
-          <!-- 상태 1: 정상 작성된 타인 일정 (메일 활성화) -->
           <div id="email_active_view" class="hidden flex-col gap-2 w-full">
             <button type="button" onclick="window.toggleEmailForm()" class="w-full py-2.5 bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#007AFF] font-bold rounded-[14px] flex items-center justify-center gap-2 transition-all">
               <i data-feather="mail" class="w-4 h-4"></i> 작성자에게 메일로 지시/코멘트 보내기
@@ -406,14 +363,12 @@
             </div>
           </div>
 
-          <!-- 상태 2: 과거 데이터 (작성자 이메일 누락) -->
           <div id="email_legacy_view" class="hidden w-full p-3 bg-gray-100 rounded-[12px] text-center text-[12px] font-bold text-[#86868B]">
             이전 시스템에서 등록되어 작성자 정보가 없습니다.<br/>(코멘트를 보낼 수 없습니다)
           </div>
 
         </div>
 
-        <!-- 하단 컨트롤 버튼 -->
         <div class="pt-2 flex justify-between gap-3 items-center">
           <button type="button" id="btn_delete" onclick="window.handleDeleteBtnClick()" class="hidden px-5 py-3 rounded-full text-[15px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 hover:bg-[#FF3B30]/20 border border-transparent hover:border-[#FF3B30]/30 transition-colors active:scale-95">삭제</button>
           <div class="flex gap-3 ml-auto">
@@ -424,7 +379,6 @@
     </div>
   </div>
 
-  <!-- --- [Modal: Password Change] --- -->
   <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[300] p-4 sm:p-6 hidden flex transition-all duration-300">
     <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-[400px] overflow-hidden flex flex-col animation-fade-in border border-gray-300">
       <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-white">
@@ -458,9 +412,6 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- JavaScript: Firebase & 비즈니스 로직 -->
-  <!-- ========================================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -505,8 +456,8 @@
     let currentEditTaskId = null;
     let isDeleteConfirming = false;
 
-    // 메일 발송용 구글 앱스 스크립트 API URL (여기에 URL을 붙여넣으세요)
-    window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbyqevhbgHyQkC7GyT39A2L0fSzRd5ZUbQBaf3Ax4CfA_tITJAVfg8xMpJPGFWw6Y9IBvw/exec";
+    // 메일 발송용 구글 앱스 스크립트 API URL (사용자님께서 제공해주신 최종 URL 반영)
+    window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwwbk4CijVvlht7m-8L0sQxSg4Kp3zz403BIV7T_KuULy4hApCYJ68C86AnUo-nFtkNow/exec";
 
     /* -------------------------------------------------------------------------- */
     /* 3. Firebase 설정 및 초기화                                                */
@@ -644,35 +595,72 @@
       }, 3000);
     }
 
-    window.exportToCSV = function() {
+    window.exportToExcel = function() {
       if (tasks.length === 0) {
         showToast('다운로드할 데이터가 없습니다.', 'error');
         return;
       }
+      
+      if (typeof XLSX === 'undefined') {
+        showToast('엑셀 변환 라이브러리를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.', 'error');
+        return;
+      }
      
-      const headers = ['일련번호', '업무 제목', '구분', '소속 파트', '담당자', '장소', '시작일자', '종료일자', '시작시간', '종료시간', '주요업무 여부', '상세메모'];
-      const rows = tasks.map(task => {
+      // --- [시트 1: 전체업무 데이터 생성] ---
+      const headers1 = ['일련번호', '업무 제목', '구분', '소속 파트', '담당자', '장소', '시작일자', '종료일자', '시작시간', '종료시간', '주요업무 여부', '상세메모'];
+      const rows1 = tasks.map(task => {
         const teamName = TEAMS.find(t => t.id === task.teamId)?.name || '알 수 없음';
         const typeName = task.type === 'section' ? '과단위' : '개인별';
         const isFocusText = task.isFocus ? 'O' : 'X';
-        const escapeCSV = (str) => `"${(str || '').toString().replace(/"/g, '""')}"`;
        
         return [
-          task.id, escapeCSV(task.title), typeName, teamName, escapeCSV(task.assignee),
-          escapeCSV(task.location), task.startDate, task.endDate, task.startTime, task.endTime,
-          isFocusText, escapeCSV(task.description)
-        ].join(',');
+          task.id, task.title, typeName, teamName, task.assignee,
+          task.location || '', task.startDate, task.endDate, task.startTime, task.endTime,
+          isFocusText, task.description || ''
+        ];
       });
+      
+      const ws1 = XLSX.utils.aoa_to_sheet([headers1, ...rows1]);
+
+      // --- [시트 2: 주간업무 데이터 생성 (분리 로직 적용)] ---
+      const headers2 = ['소속파트', '상세메모'];
+      const rows2 = [];
+      
+      // 1순위: 소속파트(TEAMS 배열 인덱스), 2순위: 시작시간 정렬 맵핑
+      const teamOrder = {};
+      TEAMS.forEach((t, i) => teamOrder[t.id] = i);
+
+      const sortedTasks = [...tasks].sort((a, b) => {
+        const teamA = teamOrder[a.teamId] ?? 99;
+        const teamB = teamOrder[b.teamId] ?? 99;
+        if (teamA !== teamB) return teamA - teamB; // 파트 순위가 다르면 파트 우선순위로 정렬
+        return (a.startTime || '').localeCompare(b.startTime || ''); // 파트가 같으면 시작시간 정렬
+      });
+
+      // 각 업무의 상세 메모를 줄바꿈으로 쪼개서 각각의 행(Row)으로 푸시
+      sortedTasks.forEach(task => {
+        if (!task.description) return; // 상세 메모가 아예 없으면 건너뜀
+        
+        const teamName = TEAMS.find(t => t.id === task.teamId)?.name || '알 수 없음';
+        const lines = task.description.split('\n'); // 엔터 단위로 쪼개기
+        
+        lines.forEach(line => {
+          const trimmedLine = line.replace(/\r/g, '').trim(); // 불필요한 공백/캐리지리턴 제거
+          if (trimmedLine !== '') { // 완전히 빈 줄은 엑셀 행으로 만들지 않음
+            rows2.push([teamName, trimmedLine]);
+          }
+        });
+      });
+
+      const ws2 = XLSX.utils.aoa_to_sheet([headers2, ...rows2]);
+
+      // --- [엑셀 워크북(파일) 생성 및 2개 시트 병합] ---
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws1, "전체업무");
+      XLSX.utils.book_append_sheet(wb, ws2, "주간업무");
      
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `동반성장부_업무일정_${formatDateForInput(new Date())}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // 엑셀 다운로드 실행
+      XLSX.writeFile(wb, `동반성장부_업무일정_${formatDateForInput(new Date())}.xlsx`);
       showToast('엑셀 파일 다운로드가 완료되었습니다.', 'success');
     }
 
