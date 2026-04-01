@@ -422,7 +422,7 @@
     /* 1. 환경 설정 및 상수 정의                                                  */
     /* -------------------------------------------------------------------------- */
     const TEAMS = [
-      { id: 't5', name: '수석님', text: 'text-[#FF3B30]', bg: 'bg-[#FF3B30]/15', border: 'border-[#FF3B30]/30', hex: '#FF3B30' },
+      { id: 't5', name: '담당임원', text: 'text-[#FF3B30]', bg: 'bg-[#FF3B30]/15', border: 'border-[#FF3B30]/30', hex: '#FF3B30' },
       { id: 't1', name: '기획과', text: 'text-[#007AFF]', bg: 'bg-[#007AFF]/15', border: 'border-[#007AFF]/30', hex: '#007AFF' },
       { id: 't2', name: '지원과', text: 'text-[#34C759]', bg: 'bg-[#34C759]/15', border: 'border-[#34C759]/30', hex: '#34C759' },
       { id: 't3', name: '인력지원과', text: 'text-[#FF9500]', bg: 'bg-[#FF9500]/15', border: 'border-[#FF9500]/30', hex: '#FF9500' },
@@ -1175,7 +1175,7 @@
       const teamIdVal = document.getElementById('f_teamId').value;
      
       if (teamIdVal === 't5' && !assigneeVal.trim()) {
-        assigneeVal = '수석님';
+        assigneeVal = '담당임원';
       }
      
       const formData = {
