@@ -738,7 +738,7 @@
 
     // --- [팝업 열기/닫기 로직] ---
     window.showDayPopover = function(e, dateStr) {
-      e.stopPropagation(); // 셀 클릭(상세일정 연동) 방지
+      e.stopPropagation(); 
       const popover = document.getElementById('calendar-popover');
       const title = document.getElementById('popover-title');
       const content = document.getElementById('popover-content');
@@ -752,28 +752,27 @@
       let html = '';
       dayTasks.forEach(t => {
         const team = TEAMS.find(x => x.id === t.teamId);
+        // 담당자명을 제거하고, padding(여백)과 margin을 최소화하여 높이를 대폭 줄였습니다.
         html += `
-          <div ondblclick="window.openEditTaskModal('${t.id}')" class="flex flex-col p-2.5 rounded-[10px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 transition-opacity">
-            <div class="flex justify-between items-center mb-1.5">
-              <span class="${team.text} text-[10px] font-bold px-1.5 py-0.5 bg-white/60 rounded-[4px] border ${team.border}">${team.name}</span>
-              <span class="text-[11px] text-[#48484A] font-bold">${t.startTime}</span>
+          <div ondblclick="window.openEditTaskModal('${t.id}')" class="flex flex-col px-2.5 py-1.5 rounded-[8px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 transition-opacity">
+            <div class="flex justify-between items-center mb-0.5">
+              <span class="${team.text} text-[9px] font-bold px-1.5 py-0.5 bg-white/60 rounded-[4px] border ${team.border}">${team.name}</span>
+              <span class="text-[10px] text-[#48484A] font-bold">${t.startTime}</span>
             </div>
-            <span class="text-[#1D1D1F] text-[13px] font-bold leading-snug">${t.title}</span>
-            <span class="text-[#48484A] text-[11px] font-semibold mt-1">${t.assignee}</span>
+            <span class="text-[#1D1D1F] text-[12px] font-bold leading-tight truncate">${t.title}</span>
           </div>
         `;
       });
       content.innerHTML = html;
 
       popover.classList.remove('hidden');
-      popover.classList.add('flex'); // hidden 해제 후 flex 적용
+      popover.classList.add('flex'); 
       
       setTimeout(() => {
         const rect = e.target.getBoundingClientRect();
         let top = rect.top + window.scrollY;
         let left = rect.left + window.scrollX + rect.width + 10;
 
-        // 팝업이 화면 밖으로 넘어가면 위치 조정
         if (left + 256 > window.innerWidth) {
           left = rect.left + window.scrollX - 256 - 10;
         }
@@ -799,7 +798,6 @@
       }, 200);
     };
 
-    // 팝업 외부 클릭 시 닫기
     document.addEventListener('click', (e) => {
       const popover = document.getElementById('calendar-popover');
       if (!popover.classList.contains('hidden') && !popover.contains(e.target)) {
@@ -807,7 +805,7 @@
       }
     });
 
-    // --- [캘린더 렌더링 - 레이아웃 개선] ---
+    // --- [캘린더 렌더링 - 레이아웃 완벽 통일 개선] ---
     function renderCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
@@ -857,53 +855,82 @@
           else if (isRedDay) numColorClass = 'text-[#FF3B30]';
           else if (isSaturday) numColorClass = 'text-[#007AFF]';
 
-          const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-6 h-6 flex items-center justify-center rounded-full shadow-md font-bold">${dayNum}</span>` : dayNum;
+          // 날짜 숫자 (절대 좌표)
+          const numDisplay = isCellToday ? `<span class="bg-[#007AFF] w-6 h-6 flex items-center justify-center rounded-full shadow-md font-bold text-white">${dayNum}</span>` : `<span class="w-6 h-6 flex items-center justify-center font-bold ${numColorClass}">${dayNum}</span>`;
+          const dateLabel = `<div class="absolute top-1.5 left-1.5 z-10">${numDisplay}</div>`;
           
-          // 공휴일 글씨를 우측 상단에 절대 위치(Absolute)로 고정하여 레이아웃을 해치지 않음
-          const holidayLabel = holidayName ? `<span class="absolute top-1.5 right-1.5 text-[10px] font-bold text-[#FF3B30] truncate text-right bg-white/70 px-1 rounded z-0">${holidayName}</span>` : '';
+          // 공휴일 글씨 (절대 좌표, 일정 뒤에 깔림)
+          const holidayLabel = holidayName ? `<span class="absolute top-1.5 right-1.5 text-[10px] font-bold text-[#FF3B30] truncate text-right bg-white/60 px-1 rounded z-0">${holidayName}</span>` : '';
 
-          // 1. 헤더 영역 (숫자 및 공휴일) - 높이 고정
-          const cellHeader = `
-            <div class="flex items-start justify-between w-full h-[26px] mb-1 relative z-10">
-               <div class="text-[14px] font-bold ${numColorClass} shrink-0 w-6 h-6 flex items-center justify-center">${numDisplay}</div>
-               ${holidayLabel}
-            </div>
+          // 일정 컨테이너 (좌측 여백 26px 확보하여 날짜와 겹치지 않고 가로폭 통일)
+          let tasksHtml = `
+            <div class="flex items-start w-full h-full relative z-20 pt-[2px]">
+               <div class="w-[26px] shrink-0"></div> <!-- 날짜 공간만큼 비워두기 -->
+               <div class="flex flex-col gap-1 flex-1 min-w-0">
           `;
 
-          // 2. 일정 블록 영역 - 1줄 1개, 최대 2개 표시 후 +N
-          let tasksHtml = '<div class="flex flex-col gap-1 w-full flex-1 overflow-hidden relative z-10">';
-          const MAX_VISIBLE = 2; // 최대 2개까지만 정상 노출 (그 이상은 +버튼 처리)
-          const dayTasksCount = dayTasks.length;
+          if (dayTasks.length > 0) {
+              const MAX_VISIBLE = 3; 
+              
+              if (dayTasks.length <= 3) {
+                  dayTasks.forEach(t => {
+                      const team = TEAMS.find(x => x.id === t.teamId);
+                      tasksHtml += `
+                        <div class="w-full bg-white rounded-[4px] shadow-sm">
+                            <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')"
+                                 class="w-full ${team.bg} ${team.text} px-1.5 py-0.5 rounded-[4px] text-[10px] sm:text-[11px] font-bold truncate border ${team.border} leading-tight hover:opacity-80 transition-opacity"
+                                 title="${t.title}">
+                              ${t.title}
+                            </div>
+                        </div>
+                      `;
+                  });
+              } else {
+                  // 4개 이상 시: 1, 2번째는 그대로 표시
+                  for(let j=0; j<2; j++) {
+                      const t = dayTasks[j];
+                      const team = TEAMS.find(x => x.id === t.teamId);
+                      tasksHtml += `
+                        <div class="w-full bg-white rounded-[4px] shadow-sm">
+                            <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')"
+                                 class="w-full ${team.bg} ${team.text} px-1.5 py-0.5 rounded-[4px] text-[10px] sm:text-[11px] font-bold truncate border ${team.border} leading-tight hover:opacity-80 transition-opacity"
+                                 title="${t.title}">
+                              ${t.title}
+                            </div>
+                        </div>
+                      `;
+                  }
 
-          if (dayTasksCount > 0) {
-              // 3개 이상이면 2개만 보여주고, 나머지는 숨김 처리
-              let visibleCount = dayTasksCount > MAX_VISIBLE ? MAX_VISIBLE : dayTasksCount;
-              const visibleTasks = dayTasks.slice(0, visibleCount);
-              const hiddenCount = dayTasksCount - visibleCount;
+                  // 3번째 줄: 좌측에 일정 표시, 우측 끝에 +N개 미니 버튼 표시
+                  const t3 = dayTasks[2];
+                  const team3 = TEAMS.find(x => x.id === t3.teamId);
+                  const hiddenCount = dayTasks.length - 3;
 
-              visibleTasks.forEach(t => {
-                  const team = TEAMS.find(x => x.id === t.teamId);
                   tasksHtml += `
-                    <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')"
-                         class="w-full ${team.bg} ${team.text} px-1.5 py-0.5 rounded-[4px] text-[11px] font-bold truncate border ${team.border} shadow-sm leading-tight hover:opacity-80 transition-opacity"
-                         title="${t.title}">
-                      ${t.title}
-                    </div>
-                  `;
-              });
-
-              if (hiddenCount > 0) {
-                  tasksHtml += `
-                    <div onclick="window.showDayPopover(event, '${cellDateStr}')"
-                         class="w-full bg-gray-100 text-[#48484A] hover:bg-[#007AFF] hover:text-white hover:border-[#007AFF] px-1.5 py-0.5 rounded-[4px] text-[11px] font-bold text-center border border-gray-200 cursor-pointer transition-all shadow-sm">
-                      + ${hiddenCount}개 더보기
+                    <div class="flex items-center gap-1 w-full">
+                        <div class="flex-1 min-w-0 bg-white rounded-[4px] shadow-sm">
+                            <div ondblclick="event.stopPropagation(); window.openEditTaskModal('${t3.id}')"
+                                 class="w-full ${team3.bg} ${team3.text} px-1.5 py-0.5 rounded-[4px] text-[10px] sm:text-[11px] font-bold truncate border ${team3.border} leading-tight hover:opacity-80 transition-opacity"
+                                 title="${t3.title}">
+                              ${t3.title}
+                            </div>
+                        </div>
+                        <div onclick="window.showDayPopover(event, '${cellDateStr}')"
+                             class="shrink-0 bg-white text-[#48484A] hover:bg-[#007AFF] hover:text-white px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold text-center border border-gray-300 cursor-pointer transition-all shadow-sm"
+                             title="${hiddenCount}개 더보기">
+                          +${hiddenCount}
+                        </div>
                     </div>
                   `;
               }
           }
-          tasksHtml += '</div>';
 
-          cellContent = cellHeader + tasksHtml;
+          tasksHtml += `
+               </div>
+            </div>
+          `;
+
+          cellContent = dateLabel + holidayLabel + tasksHtml;
         } else {
           cellContent = `<div class="text-[14px] md:text-[15px] font-bold p-1">${dayNum > 0 ? dayNum : ''}</div>`;
         }
