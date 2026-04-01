@@ -87,7 +87,7 @@
           <i data-feather="calendar" class="text-white w-7 h-7"></i>
         </div>
         <h2 class="text-[22px] font-bold text-[#1D1D1F] tracking-tight text-center">동반성장부 워크스페이스</h2>
-        <p class="text-[14px] text-[#48484A] font-medium mt-1">사내 계정으로 로그인해주세요.</p>
+        <p class="text-[14px] text-[#48484A] font-medium mt-1">사내 관리자에게 부여받은 계정으로 로그인해주세요.</p>
       </div>
       <form onsubmit="window.handleLogin(event)" class="flex flex-col gap-4">
         <div>
@@ -101,7 +101,6 @@
         <button type="submit" id="btn_login" class="mt-2 w-full py-3.5 bg-[#007AFF] hover:bg-[#0062CC] text-white rounded-[12px] text-[15px] font-bold shadow-md transition-all active:scale-95 border border-transparent flex justify-center items-center gap-2">
           <span>로그인</span>
         </button>
-        <p class="text-center text-[12px] text-[#86868B] font-bold mt-1">사내 관리자에게 부여받은 계정으로 로그인해주세요.</p>
         <div class="mt-2 text-center">
           <button type="button" onclick="window.openPasswordModal()" class="text-[13px] text-[#48484A] font-bold hover:text-[#007AFF] transition-colors underline underline-offset-2">
             비밀번호를 변경하시려면 여기를 클릭하세요
@@ -123,7 +122,7 @@
         </div>
         <div class="flex flex-col justify-center">
           <h1 class="text-[17px] md:text-[19px] font-bold tracking-tight text-[#1D1D1F] leading-tight">
-            HD현대삼호 동반성장부!! 화이팅~! 수석님 쵝오~!
+            HD현대삼호 동반성장부
           </h1>
           <div class="flex items-center gap-2 mt-0.5">
             <p class="text-[13px] text-[#48484A] font-semibold">통합 업무 워크스페이스</p>
@@ -391,16 +390,26 @@
 
         <!-- 메일 보내기 (편집 시에만 표시) -->
         <div id="email_action_container" class="hidden flex-col gap-2 mt-2 pt-4 border-t border-gray-200">
-          <button type="button" onclick="window.toggleEmailForm()" class="w-full py-2.5 bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#007AFF] font-bold rounded-[14px] flex items-center justify-center gap-2 transition-all">
-            <i data-feather="mail" class="w-4 h-4"></i> 작성자에게 메일로 지시/코멘트 보내기
-          </button>
-          <div id="email_form" class="hidden flex-col gap-2 mt-1">
-            <textarea id="email_content" rows="3" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[14px] font-bold outline-none focus:border-[#007AFF] focus:bg-white transition-all resize-none" placeholder="여기에 전달할 내용을 작성해주세요..."></textarea>
-            <button type="button" id="btn_send_email" onclick="window.sendEmail()" class="py-3 bg-[#34C759] hover:bg-[#28A745] text-white font-bold rounded-[14px] flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
-              <i data-feather="send" class="w-4 h-4"></i> 메일 바로 보내기
+          
+          <!-- 상태 1: 정상 작성된 타인 일정 (메일 활성화) -->
+          <div id="email_active_view" class="hidden flex-col gap-2 w-full">
+            <button type="button" onclick="window.toggleEmailForm()" class="w-full py-2.5 bg-[#F2F2F7] hover:bg-[#E5E5EA] text-[#007AFF] font-bold rounded-[14px] flex items-center justify-center gap-2 transition-all">
+              <i data-feather="mail" class="w-4 h-4"></i> 작성자에게 메일로 지시/코멘트 보내기
             </button>
-            <p class="text-[11px] text-[#86868B] text-center font-bold">버튼을 누르면 작성자에게 즉시 이메일이 발송됩니다.</p>
+            <div id="email_form" class="hidden flex-col gap-2 mt-1">
+              <textarea id="email_content" rows="3" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[14px] p-4 text-[14px] font-bold outline-none focus:border-[#007AFF] focus:bg-white transition-all resize-none" placeholder="여기에 전달할 내용을 작성해주세요..."></textarea>
+              <button type="button" id="btn_send_email" onclick="window.sendEmail()" class="py-3 bg-[#34C759] hover:bg-[#28A745] text-white font-bold rounded-[14px] flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
+                <i data-feather="send" class="w-4 h-4"></i> 메일 바로 보내기
+              </button>
+              <p class="text-[11px] text-[#86868B] text-center font-bold">버튼을 누르면 작성자에게 즉시 이메일이 발송됩니다.</p>
+            </div>
           </div>
+
+          <!-- 상태 2: 과거 데이터 (작성자 이메일 누락) -->
+          <div id="email_legacy_view" class="hidden w-full p-3 bg-gray-100 rounded-[12px] text-center text-[12px] font-bold text-[#86868B]">
+            이전 시스템에서 등록되어 작성자 정보가 없습니다.<br/>(코멘트를 보낼 수 없습니다)
+          </div>
+
         </div>
 
         <!-- 하단 컨트롤 버튼 -->
@@ -1064,9 +1073,10 @@
       resetDeleteBtn();
       window.handleTeamChange();
 
-      // 새 일정 등록 시 메일 컨테이너 숨김
-      document.getElementById('email_action_container').classList.add('hidden');
-      document.getElementById('email_form').classList.add('hidden');
+      // 새 일정 등록 시 메일 컨테이너 숨김 및 초기화
+      const emailContainer = document.getElementById('email_action_container');
+      emailContainer.classList.add('hidden');
+      emailContainer.classList.remove('flex');
     }
 
     window.openEditTaskModal = function(id) {
@@ -1074,41 +1084,67 @@
       const task = tasks.find(x => x.id === id);
       if(!task) return;
 
-      const isCreator = !task.creatorEmail || task.creatorEmail === currentUser.email;
+      const isLegacyTask = !task.creatorEmail; // 예전 시스템에서 등록된 글인지 확인
+      const isCreator = task.creatorEmail === currentUser.email; // 본인이 작성했는지 확인
+      const canEdit = isLegacyTask || isCreator; // 본인 글이거나 예전 글이면 수정 허용 (데이터가 잠기지 않게)
 
-      document.getElementById('modal-title').innerText = isCreator ? "일정 상세 및 편집" : "일정 상세 조회";
+      document.getElementById('modal-title').innerText = canEdit ? "일정 상세 및 편집" : "일정 상세 조회";
       document.getElementById('btn_submit').innerText = "저장";
 
       const fields = ['title','type','teamId','assignee','location','startDate','endDate','startTime','endTime','description'];
       fields.forEach(f => {
         const el = document.getElementById('f_' + f);
         el.value = task[f] || '';
-        el.disabled = !isCreator;
+        el.disabled = !canEdit;
       });
      
       const isFocusEl = document.getElementById('f_isFocus');
       isFocusEl.checked = !!task.isFocus;
-      isFocusEl.disabled = !isCreator;
+      isFocusEl.disabled = !canEdit;
      
       document.getElementById('taskModal').classList.remove('hidden');
       document.getElementById('taskForm').scrollTop = 0;
       isDeleteConfirming = false;
       resetDeleteBtn();
       
-      if (isCreator) {
+      // 버튼 제어
+      if (canEdit) {
         window.handleTeamChange();
         document.getElementById('btn_submit').classList.remove('hidden');
         document.getElementById('btn_delete').classList.remove('hidden');
-        document.getElementById('email_action_container').classList.add('hidden');
       } else {
         document.getElementById('btn_submit').classList.add('hidden');
         document.getElementById('btn_delete').classList.add('hidden');
-        
-        const emailContainer = document.getElementById('email_action_container');
-        const emailForm = document.getElementById('email_form');
+      }
+
+      // 이메일(지시사항) 컨테이너 제어
+      const emailContainer = document.getElementById('email_action_container');
+      const emailActive = document.getElementById('email_active_view');
+      const emailLegacy = document.getElementById('email_legacy_view');
+      const emailForm = document.getElementById('email_form');
+
+      if (isLegacyTask) {
+        // 작성자 정보가 없는 예전 일정
         emailContainer.classList.remove('hidden');
-        emailForm.classList.add('hidden'); // 폼은 처음엔 닫아둠
+        emailContainer.classList.add('flex');
+        emailActive.classList.add('hidden');
+        emailActive.classList.remove('flex');
+        emailLegacy.classList.remove('hidden');
+      } else if (!isCreator) {
+        // 작성자가 명확한 타인의 일정
+        emailContainer.classList.remove('hidden');
+        emailContainer.classList.add('flex');
+        emailActive.classList.remove('hidden');
+        emailActive.classList.add('flex');
+        emailLegacy.classList.add('hidden');
+        
+        emailForm.classList.add('hidden');
+        emailForm.classList.remove('flex');
         document.getElementById('email_content').value = '';
+      } else {
+        // 본인의 일정
+        emailContainer.classList.add('hidden');
+        emailContainer.classList.remove('flex');
       }
     }
 
@@ -1125,9 +1161,13 @@
       }
 
       const existingTask = currentEditTaskId ? tasks.find(x => x.id === currentEditTaskId) : null;
-      if (existingTask && existingTask.creatorEmail && existingTask.creatorEmail !== currentUser.email) {
-        showToast('작성자 본인만 일정을 수정할 수 있습니다.', 'error');
-        return;
+      if (existingTask) {
+        const isLegacyTask = !existingTask.creatorEmail;
+        const isCreator = existingTask.creatorEmail === currentUser.email;
+        if (!isLegacyTask && !isCreator) {
+          showToast('작성자 본인만 일정을 수정할 수 있습니다.', 'error');
+          return;
+        }
       }
 
       let assigneeVal = document.getElementById('f_assignee').value;
@@ -1177,9 +1217,13 @@
       if (!currentUser || !currentEditTaskId) return;
 
       const existingTask = tasks.find(x => x.id === currentEditTaskId);
-      if (existingTask && existingTask.creatorEmail && existingTask.creatorEmail !== currentUser.email) {
-        showToast('작성자 본인만 일정을 삭제할 수 있습니다.', 'error');
-        return;
+      if (existingTask) {
+        const isLegacyTask = !existingTask.creatorEmail;
+        const isCreator = existingTask.creatorEmail === currentUser.email;
+        if (!isLegacyTask && !isCreator) {
+          showToast('작성자 본인만 일정을 삭제할 수 있습니다.', 'error');
+          return;
+        }
       }
 
       if (!isDeleteConfirming) {
@@ -1197,8 +1241,6 @@
         return;
       }
      
-      if (!currentUser || !currentEditTaskId) return;
-
       const taskRef = doc(db, 'artifacts', appId, 'public', 'data', 'workspace_tasks', currentEditTaskId);
       try {
           await deleteDoc(taskRef);
@@ -1215,7 +1257,13 @@
     /* -------------------------------------------------------------------------- */
     window.toggleEmailForm = function() {
       const emailForm = document.getElementById('email_form');
-      emailForm.classList.toggle('hidden');
+      if (emailForm.classList.contains('hidden')) {
+        emailForm.classList.remove('hidden');
+        emailForm.classList.add('flex');
+      } else {
+        emailForm.classList.add('hidden');
+        emailForm.classList.remove('flex');
+      }
     }
 
     window.sendEmail = async function() {
