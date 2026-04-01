@@ -824,6 +824,8 @@
 
     // --- [모바일/PC 맞춤형 셀 클릭 이벤트 핸들러] ---
     window.handleCellClick = function(event, dateStr) {
+      if (event) event.stopPropagation(); // 팝업이 전역 클릭 이벤트에 의해 닫히는 현상(버블링) 방지
+      
       const currentTime = new Date().getTime();
       const timeDiff = currentTime - lastClickTime;
 
@@ -851,7 +853,7 @@
         const dayTasks = getFilteredTasks().filter(t => t.startDate <= dateStr && t.endDate >= dateStr);
         // 일정이 1개라도 있으면 팝업 띄우기
         if (dayTasks.length > 0) {
-          window.showDayPopover(null, dateStr, rect);
+          window.showDayPopover(event, dateStr, rect);
         }
       }
     };
