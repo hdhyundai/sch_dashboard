@@ -506,7 +506,7 @@
     let isDeleteConfirming = false;
 
     // 메일 발송용 구글 앱스 스크립트 API URL (여기에 URL을 붙여넣으세요)
-    window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbyBVYblAYk5r_mOK21uabeEG2OVE8xVLgR8hWaZUV7njSVqTpNW0UDk3JxcYz3jvn01SQ/exec";
+    window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbyqevhbgHyQkC7GyT39A2L0fSzRd5ZUbQBaf3Ax4CfA_tITJAVfg8xMpJPGFWw6Y9IBvw/exec";
 
     /* -------------------------------------------------------------------------- */
     /* 3. Firebase 설정 및 초기화                                                */
@@ -1300,7 +1300,7 @@
           body: JSON.stringify({
             to: task.creatorEmail,
             replyTo: currentUser.email, // 답장(Reply) 시 발송자 본인에게 돌아가도록 설정
-            senderName: currentUser.email.split('@')[0], // 이름에 이메일 앞부분 표시
+            senderName: "동반성장부 통합 워크스페이스", // 발신자 이름을 공식 명칭으로 고정
             subject: subject,
             body: body
           })
