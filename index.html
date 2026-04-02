@@ -71,6 +71,16 @@
       background-color: #E5E5EA !important;
       color: #48484A;
     }
+
+    /* select 화살표 커스텀 (시간, 소속 등) */
+    .custom-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2348484A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1em;
+      padding-right: 2.5rem;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#F2F2F7] text-[#1D1D1F] flex flex-col relative selection:bg-[#007AFF]/20 selection:text-[#007AFF] overflow-x-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Pretendard', system-ui, sans-serif;">
@@ -128,7 +138,7 @@
         </div>
       </div>
 
-      <!-- Middle: PC 전용 명언 위젯 (미리보기/노트북 화면에서도 보이도록 lg 해상도로 낮춤) -->
+      <!-- Middle: PC 전용 명언 위젯 -->
       <div class="hidden lg:flex flex-1 justify-center items-center px-4 min-w-0">
         <div id="quote-container" class="transition-opacity duration-700 ease-in-out opacity-0 max-w-[500px] xl:max-w-[700px] truncate text-center cursor-default select-none flex flex-col xl:flex-row items-center xl:items-baseline gap-0.5 xl:gap-2">
           <span class="text-[12px] xl:text-[14px] text-[#48484A] font-medium tracking-tight italic truncate w-full" id="quote-text"></span>
@@ -306,14 +316,15 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">업무 구분 <span class="text-[#FF3B30]">*</span></label>
-            <select id="f_type" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
+            <select id="f_type" class="custom-select w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer">
               <option value="individual">개인별 업무</option>
-              <option value="section">과단위 (공통) 업무</option>
+              <option value="section">과단위 업무</option>
+              <option value="department">부서단위 업무</option>
             </select>
           </div>
           <div>
             <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">소속 파트 <span class="text-[#FF3B30]">*</span></label>
-            <select id="f_teamId" onchange="window.handleTeamChange()" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer appearance-none">
+            <select id="f_teamId" onchange="window.handleTeamChange()" class="custom-select w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer">
               </select>
           </div>
         </div>
@@ -335,21 +346,29 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">시작 날짜 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_startDate" required type="date" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <input id="f_startDate" required type="date" onchange="window.handleTimeConstraints()" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer" />
             </div>
             <div>
               <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">종료 날짜 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_endDate" required type="date" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <input id="f_endDate" required type="date" onchange="window.handleTimeConstraints()" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 cursor-pointer" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
+            <!-- 시작 시간 커스텀 셀렉트 -->
             <div>
               <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">시작 시간 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_startTime" required type="time" value="08:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <div class="relative w-full cursor-pointer" onclick="window.toggleTimeDropdown(event, 'start')">
+                <input type="text" id="f_startTime" required readonly class="custom-select w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 pointer-events-none" />
+                <ul id="dropdown_startTime" class="hidden absolute left-0 right-0 top-full mt-2 bg-white border border-gray-200 rounded-[12px] shadow-xl max-h-[180px] overflow-y-auto z-[110] py-1 flex flex-col custom-scrollbar"></ul>
+              </div>
             </div>
+            <!-- 종료 시간 커스텀 셀렉트 -->
             <div>
               <label class="block text-[13px] font-bold text-[#3A3A3C] mb-2 pl-1">종료 시간 <span class="text-[#FF3B30]">*</span></label>
-              <input id="f_endTime" required type="time" value="17:00" class="w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10" />
+              <div class="relative w-full cursor-pointer" onclick="window.toggleTimeDropdown(event, 'end')">
+                <input type="text" id="f_endTime" required readonly class="custom-select w-full bg-[#F5F5F7] border border-gray-300 rounded-[12px] p-3.5 text-[15px] font-bold focus:bg-white focus:border-[#007AFF] outline-none transition-all focus:ring-4 focus:ring-[#007AFF]/10 pointer-events-none" />
+                <ul id="dropdown_endTime" class="hidden absolute left-0 right-0 top-full mt-2 bg-white border border-gray-200 rounded-[12px] shadow-xl max-h-[180px] overflow-y-auto z-[110] py-1 flex flex-col custom-scrollbar"></ul>
+              </div>
             </div>
           </div>
         </div>
@@ -611,6 +630,14 @@
     // 명언 롤링 인덱스
     let currentQuoteIndex = 0;
 
+    // 30분 단위 시간 옵션 생성을 위한 배열
+    const timeOptions = [];
+    for (let h = 0; h < 24; h++) {
+      const hour = String(h).padStart(2, '0');
+      timeOptions.push(`${hour}:00`);
+      timeOptions.push(`${hour}:30`);
+    }
+
     // 메일 발송용 구글 앱스 스크립트 API URL
     window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwwbk4CijVvlht7m-8L0sQxSg4Kp3zz403BIV7T_KuULy4hApCYJ68C86AnUo-nFtkNow/exec";
 
@@ -734,26 +761,22 @@
       currentQuoteIndex = Math.floor(Math.random() * QUOTES.length);
       
       const updateQuote = () => {
-        // 페이드 아웃
         container.classList.remove('opacity-100');
         container.classList.add('opacity-0');
         
         setTimeout(() => {
-          // 명언 변경
+          // 명언 변경 (깨짐 방지를 위해 표준 대칭 쌍따옴표 사용)
           const q = QUOTES[currentQuoteIndex];
           textEl.innerText = `“${q.text}”`;
           authorEl.innerText = `— ${q.author}`;
           
-          // 인덱스 증가
           currentQuoteIndex = (currentQuoteIndex + 1) % QUOTES.length;
           
-          // 페이드 인
           container.classList.remove('opacity-0');
           container.classList.add('opacity-100');
-        }, 700); // fade-out 시간에 맞춤
+        }, 700); 
       };
 
-      // 처음 한 번 실행 후 10초마다 반복
       updateQuote();
       setInterval(updateQuote, 10000);
     }
@@ -799,7 +822,7 @@
       const headers1 = ['일련번호', '업무 제목', '구분', '소 파트', '담당자', '장소', '시작일자', '종료일자', '시작시간', '종료시간', '주요업무 여부', '상세메모'];
       const rows1 = tasks.map(task => {
         const teamName = TEAMS.find(t => t.id === task.teamId)?.name || '알 수 없음';
-        const typeName = task.type === 'section' ? '과단위' : '개인별';
+        const typeName = task.type === 'section' ? '과단위' : (task.type === 'department' ? '부서단위' : '개인별');
         const isFocusText = task.isFocus ? 'O' : 'X';
        
         return [
@@ -890,8 +913,7 @@
       const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
       const monthTasks = filtered.filter(t => t.startDate.startsWith(currentYearMonth) || t.endDate.startsWith(currentYearMonth));
       
-      const actualTodayStr = formatDateForInput(new Date()); // 실제 오늘 날짜 계산
-      // 종료일(endDate)이 오늘 날짜(actualTodayStr)보다 크거나 같은 업무만 필터링 (과거 숨김)
+      const actualTodayStr = formatDateForInput(new Date()); 
       const focusTasks = monthTasks.filter(t => t.isFocus && t.endDate >= actualTodayStr).sort((a, b) => {
         if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
         return a.startTime.localeCompare(b.startTime);
@@ -933,7 +955,6 @@
       let html = '';
       dayTasks.forEach(t => {
         const team = TEAMS.find(x => x.id === t.teamId);
-        // 담당자명 제거 및 여백/크기 최소화
         html += `
           <div onclick="window.openEditTaskModal('${t.id}')" class="flex flex-col px-2.5 py-1.5 rounded-[8px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 transition-opacity active:scale-[0.98]">
             <div class="flex justify-between items-center mb-0.5">
@@ -990,11 +1011,73 @@
       }, 200);
     };
 
+    // --- [시간 드롭다운 커스텀 렌더링 및 제어 로직] ---
+    function renderTimeDropdown(type, validOptions) {
+      const ul = document.getElementById(`dropdown_${type}Time`);
+      if (!ul) return;
+      ul.innerHTML = '';
+      validOptions.forEach(time => {
+          const li = document.createElement('li');
+          li.className = "px-4 py-2.5 text-[14px] font-bold text-[#1D1D1F] hover:bg-[#007AFF] hover:text-white cursor-pointer transition-colors";
+          li.innerText = time;
+          li.onclick = (e) => {
+              e.stopPropagation();
+              window.selectTime(type, time);
+          };
+          ul.appendChild(li);
+      });
+    }
+
+    window.toggleTimeDropdown = function(e, type) {
+      if (e) e.stopPropagation();
+      const dropdown = document.getElementById('dropdown_' + type + 'Time');
+      const isHidden = dropdown.classList.contains('hidden');
+      const inputEl = document.getElementById('f_' + type + 'Time');
+      
+      // 열려있는 다른 드롭다운 닫기
+      document.getElementById('dropdown_startTime').classList.add('hidden');
+      document.getElementById('dropdown_endTime').classList.add('hidden');
+      
+      // disabled 상태가 아니면 열기
+      if (isHidden && !inputEl.disabled) {
+          dropdown.classList.remove('hidden');
+          
+          // 현재 설정된 시간 값을 찾아 드롭다운 '맨 위'로 자동 스크롤
+          const currentValue = inputEl.value;
+          setTimeout(() => {
+              const items = Array.from(dropdown.getElementsByTagName('li'));
+              const selectedItem = items.find(li => li.innerText === currentValue);
+              if (selectedItem) {
+                  // offsetTop을 그대로 사용하여 선택된 항목을 가장 상단에 위치시킴
+                  dropdown.scrollTop = selectedItem.offsetTop;
+              }
+          }, 10); // CSS 렌더링 직후 계산되도록 약간의 딜레이
+      }
+    };
+
+    window.selectTime = function(type, time) {
+      document.getElementById('f_' + type + 'Time').value = time;
+      document.getElementById('dropdown_' + type + 'Time').classList.add('hidden');
+      
+      // 시작 시간이 변경되면 종료 시간도 자동으로 동일하게 변경 (선택 편의성 극대화)
+      if (type === 'start') {
+          document.getElementById('f_endTime').value = time;
+          window.handleTimeConstraints(); // 드롭다운 옵션도 시작 시간 이후로 즉시 업데이트
+      }
+    };
+
     document.addEventListener('click', (e) => {
+      // 캘린더 팝업 외부 클릭 시 닫기
       const popover = document.getElementById('calendar-popover');
       if (!popover.classList.contains('hidden') && !popover.contains(e.target)) {
         window.closeDayPopover();
       }
+
+      // 커스텀 시간 드롭다운 외부 클릭 시 닫기
+      const d1 = document.getElementById('dropdown_startTime');
+      const d2 = document.getElementById('dropdown_endTime');
+      if (d1 && !e.target.closest('.relative') && !d1.contains(e.target)) d1.classList.add('hidden');
+      if (d2 && !e.target.closest('.relative') && !d2.contains(e.target)) d2.classList.add('hidden');
     });
 
     // --- [모바일/PC 맞춤형 셀 클릭 이벤트 핸들러] ---
@@ -1195,7 +1278,11 @@
       } else {
         dayTasks.forEach(task => {
           const team = TEAMS.find(t => t.id === task.teamId);
-          const isSection = task.type === 'section';
+          
+          let typeLabel = '개인';
+          let iconName = 'user';
+          if (task.type === 'section') { typeLabel = '과단위'; iconName = 'users'; }
+          else if (task.type === 'department') { typeLabel = '부서단위'; iconName = 'briefcase'; }
 
           let descHtml = '';
           if (task.description) {
@@ -1228,8 +1315,8 @@
                   </div>
                  
                   <div class="flex items-center gap-2 text-[13px] mt-1 font-bold text-[#1D1D1F]">
-                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 text-[10px]"><i data-feather="${isSection ? 'users' : 'user'}" class="w-3.5 h-3.5 text-[#3A3A3C]"></i></div>
-                    ${task.assignee} <span class="text-[#48484A] font-bold text-[12px]">(${isSection ? '과단위' : '개인'})</span>
+                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 text-[10px]"><i data-feather="${iconName}" class="w-3.5 h-3.5 text-[#3A3A3C]"></i></div>
+                    ${task.assignee} <span class="text-[#48484A] font-bold text-[12px]">(${typeLabel})</span>
                   </div>
                  
                   ${descHtml}
@@ -1252,7 +1339,6 @@
     window.handlePrevMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1); updateAll(); };
     window.handleNextMonth = function() { currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); updateAll(); };
     
-    // (기존의 handleDateClick는 직접 호출하지 않고 handleCellClick을 통해 우회 처리합니다.)
     window.handleDateClick = function(dateStr) { 
       window.selectedDate = new Date(dateStr); 
       window.selectedTaskId = null; 
@@ -1382,6 +1468,41 @@
       }
     }
 
+    // --- [시간 논리적 제어 (시작 시간에 따른 종료 시간 완전 제한)] ---
+    window.handleTimeConstraints = function() {
+      const startDate = document.getElementById('f_startDate').value;
+      const endDate = document.getElementById('f_endDate').value;
+      const startInput = document.getElementById('f_startTime');
+      const endInput = document.getElementById('f_endTime');
+
+      if (endDate && startDate && endDate < startDate) {
+          document.getElementById('f_endDate').value = startDate;
+      }
+
+      const isSameDay = document.getElementById('f_startDate').value === document.getElementById('f_endDate').value;
+      const startVal = startInput.value;
+      const currentEndVal = endInput.value;
+
+      const validEndOptions = [];
+      timeOptions.forEach(time => {
+          if (isSameDay) {
+              if (time >= startVal) validEndOptions.push(time);
+          } else {
+              validEndOptions.push(time);
+          }
+      });
+
+      // 종료 시간 드롭다운을 시작 시간 이후로만 재구성하여 렌더링
+      renderTimeDropdown('end', validEndOptions);
+
+      // 기존 종료 시간이 시작 시간보다 과거라면 덮어쓰기
+      if (isSameDay && currentEndVal < startVal) {
+          endInput.value = startVal;
+      } else if (currentEndVal) {
+          endInput.value = currentEndVal;
+      }
+    };
+
     window.openModal = function(dateObj = new Date()) {
       currentEditTaskId = null;
       document.getElementById('taskForm').reset();
@@ -1390,7 +1511,7 @@
       document.getElementById('btn_submit').innerText = "추가";
       document.getElementById('btn_submit').classList.remove('hidden');
      
-      const fields = ['title','type','teamId','assignee','location','startDate','endDate','startTime','endTime','description'];
+      const fields = ['title','type','teamId','assignee','location','startDate','endDate','description'];
       fields.forEach(f => document.getElementById('f_' + f).disabled = false);
       document.getElementById('f_isFocus').disabled = false;
 
@@ -1404,6 +1525,18 @@
       isDeleteConfirming = false;
       resetDeleteBtn();
       window.handleTeamChange();
+
+      // 시작 시간 초기화 렌더링
+      renderTimeDropdown('start', timeOptions);
+      const startInput = document.getElementById('f_startTime');
+      const endInput = document.getElementById('f_endTime');
+      
+      startInput.value = "08:00";
+      startInput.disabled = false;
+      endInput.disabled = false;
+
+      window.handleTimeConstraints(); 
+      endInput.value = "17:00"; 
 
       const emailContainer = document.getElementById('email_action_container');
       emailContainer.classList.add('hidden');
@@ -1422,13 +1555,26 @@
       document.getElementById('modal-title').innerText = canEdit ? "일정 상세 및 편집" : "일정 상세 조회";
       document.getElementById('btn_submit').innerText = "저장";
 
-      const fields = ['title','type','teamId','assignee','location','startDate','endDate','startTime','endTime','description'];
+      // 시작 시간 초기화 렌더링
+      renderTimeDropdown('start', timeOptions);
+
+      const fields = ['title','type','teamId','assignee','location','startDate','endDate','description'];
       fields.forEach(f => {
         const el = document.getElementById('f_' + f);
         el.value = task[f] || '';
         el.disabled = !canEdit;
       });
      
+      const startInput = document.getElementById('f_startTime');
+      const endInput = document.getElementById('f_endTime');
+      
+      startInput.value = task.startTime || '08:00';
+      startInput.disabled = !canEdit;
+      endInput.disabled = !canEdit;
+
+      window.handleTimeConstraints(); 
+      endInput.value = task.endTime || '17:00';
+
       const isFocusEl = document.getElementById('f_isFocus');
       isFocusEl.checked = !!task.isFocus;
       isFocusEl.disabled = !canEdit;
