@@ -210,7 +210,7 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
-              <!-- PC 전용 이달의 생일자 컨테이너 (고급스러운 프리미엄 바이올렛 색상 + 반응형 2줄 허용) -->
+              <!-- PC 전용 이달의 생일자 컨테이너 -->
               <div id="month-birthdays" class="hidden xl:flex items-start gap-1.5 text-[13px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-2 rounded-[8px] border border-[#8B5CF6]/20 max-w-[350px] 2xl:max-w-[650px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
@@ -256,7 +256,7 @@
     </main>
   </div> 
 
-  <!-- 모달 UI 고밀도 최적화 -->
+  <!-- 모달 UI (최적화 버전) -->
   <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 hidden flex transition-all duration-300">
       <div class="bg-white rounded-[24px] shadow-2xl w-full max-w-[550px] overflow-hidden flex flex-col max-h-[85vh] animation-fade-in border border-gray-300">
        
@@ -424,12 +424,21 @@
       { id: 't4', name: '협력과', text: 'text-[#AF52DE]', bg: 'bg-[#AF52DE]/15', border: 'border-[#AF52DE]/30', hex: '#AF52DE' },
     ];
 
-    const HOLIDAYS = { 
-      "2025-01-01": "신정", "2025-01-28": "설날 연휴", "2025-01-29": "설날", "2025-01-30": "설날 연휴", 
-      "2025-03-01": "3·1절", "2025-03-03": "대체공휴일", "2025-05-01": "노동절", "2025-05-05": "어린이날", 
-      "2025-05-06": "대체공휴일", "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절", 
-      "2025-10-05": "추석 연휴", "2025-10-06": "추석", "2025-10-07": "추석 연휴", "2025-10-08": "대체공휴일", 
-      "2025-10-09": "한글날", "2025-12-25": "성탄절" 
+    const HOLIDAYS = {
+      "2025-01-01": "신정", "2025-01-28": "설날 연휴", "2025-01-29": "설날", "2025-01-30": "설날 연휴",
+      "2025-03-01": "3·1절", "2025-03-03": "대체공휴일", "2025-05-01": "노동절", "2025-05-05": "어린이날", "2025-05-06": "대체공휴일",
+      "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절", "2025-10-05": "추석 연휴",
+      "2025-10-06": "추석", "2025-10-07": "추석 연휴", "2025-10-08": "대체공휴일", "2025-10-09": "한글날", "2025-12-25": "성탄절",
+      "2026-01-01": "신정", "2026-01-02": "회사휴무",
+      "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴", "2026-02-19": "대체휴가",
+      "2026-03-01": "3·1절", "2026-03-02": "대체공휴일",
+      "2026-05-01": "노동절", "2026-05-05": "어린이날", "2026-05-24": "부처님오신날", "2026-05-25": "대체공휴일",
+      "2026-06-03": "지방선거일", "2026-06-06": "현충일",
+      "2026-08-03": "하기휴가", "2026-08-04": "하기휴가", "2026-08-05": "하기휴가", "2026-08-06": "하기휴가", "2026-08-07": "하기휴가", "2026-08-08": "하기휴가", "2026-08-09": "하기휴가", "2026-08-10": "하기휴가", "2026-08-11": "하기휴가", "2026-08-12": "하기휴가", "2026-08-13": "하기휴가", "2026-08-14": "하기휴가",
+      "2026-08-15": "광복절", "2026-08-17": "대체공휴일",
+      "2026-09-24": "추석 연휴", "2026-09-25": "추석", "2026-09-26": "추석 연휴", "2026-09-27": "대체공휴일", "2026-09-28": "대체휴가",
+      "2026-10-03": "개천절", "2026-10-09": "한글날", "2026-10-27": "창립기념일",
+      "2026-12-25": "기독탄신일"
     };
 
     const BIRTHDAYS = [
@@ -491,7 +500,7 @@
       {author: "로저 베이컨 (철학자, 영국)", text: "실험 없이는 아무것도 충분히 알 수 없다."},
       {author: "존 메이너드 케인스 (경제학자, 영국)", text: "사실이 바뀌면 내 마음도 바꾼다."},
       {author: "마키아벨리 (사상가, 이탈리아)", text: "눈에 보이는 것 너머를 보라."},
-      {author: "알프레드 화이트헤드 (수학자, 영국)", text: "문명은 생각 없이 할 수 있는 일이 늘어날 때 발전한다."},
+      {author: "알프레드 화이트헤드 (수학자, 영국)", text: "문명은 생각 없이 할 수 있는 일이 늘어날 때 발전 초석이 된다."},
       {author: "요하네스 케플러 (천문학자, 독일)", text: "자연은 본질적으로 수학적이다."},
       {author: "앨빈 토플러 (미래학자, 미국)", text: "21세기의 문맹은 낡은 지식을 버리지 못하는 자다."},
       {author: "프랜시스 베이컨 (철학자, 영국)", text: "독서는 완전한 사람을, 토론은 준비된 사람을 만든다."},
@@ -1190,7 +1199,7 @@
         });
 
         if (response.ok) {
-          showToast(`${fullNameTitle}님께 축하메세지가 보내졌습니다! 💌`, 'success');
+          showToast(`${fullNameTitle}님께 축하메시지가 보내졌습니다! 💌`, 'success');
         } else {
           throw new Error('서버 응답 오류');
         }
@@ -1220,21 +1229,32 @@
       });
       document.getElementById('calendar-legends').innerHTML = legendsHtml;
       
-      // 이달의 생일자 (상단 헤더 전용, 2줄 자동 줄바꿈)
+      // 이달의 생일자 (상단 헤더 전용, 3명 이상 시 2줄로 자동 확장)
       const currentMonthBirthdays = BIRTHDAYS.filter(b => parseInt(b.date.substring(5, 7)) === month + 1)
                                              .sort((a,b) => parseInt(a.date.substring(8, 10)) - parseInt(b.date.substring(8, 10)));
       const bdayContainer = document.getElementById('month-birthdays');
       if (currentMonthBirthdays.length > 0) {
-          const bdayTextHtml = currentMonthBirthdays.map(b => 
-            `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
-          ).join(', ');
+          let bdayTextHtml = '';
+          if (currentMonthBirthdays.length <= 2) {
+              bdayTextHtml = currentMonthBirthdays.map(b => 
+                `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
+              ).join(', ');
+          } else {
+              const firstLine = currentMonthBirthdays.slice(0, 2).map(b => 
+                `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
+              ).join(', ') + ', ';
+              const secondLine = currentMonthBirthdays.slice(2).map(b => 
+                `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
+              ).join(', ');
+              
+              bdayTextHtml = `${firstLine}<br/>${secondLine}`;
+          }
           
           const bdayPlain = currentMonthBirthdays.map(b => `${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)`).join(', ');
           
-          // line-clamp-2 클래스를 적용하여 최대 2줄까지 자동 줄바꿈 및 말줄임표 처리
           bdayContainer.innerHTML = `
-            <span class="shrink-0 pt-[2px]">🎂 이달의 생일자:</span> 
-            <div class="font-medium ml-0.5 line-clamp-2 leading-tight flex-1 min-w-0 text-[12.5px]">${bdayTextHtml}</div>
+            <span class="shrink-0 pt-[1px]">🎂 이달의 생일자:</span> 
+            <div class="font-medium ml-0.5 leading-[1.6] text-[13px] break-keep">${bdayTextHtml}</div>
           `;
           bdayContainer.title = `🎂 이달의 생일자: ${bdayPlain}`;
           bdayContainer.style.display = '';
@@ -1326,9 +1346,10 @@
         const icon = (t.type==='section'?'users':(t.type==='department'?'briefcase':'user'));
         const typeLabel = (t.type==='section'?'과단위':(t.type==='department'?'부서단위':'개인별'));
         const dblClick = `ondblclick="window.openEditTaskModal('${t.id}')"`;
+        const cursorCls = 'hover:shadow-md transition-all cursor-pointer group';
 
         html += `
-          <div ${dblClick} class="bg-white rounded-[20px] p-4 shadow-sm relative overflow-hidden border border-gray-300 select-none hover:shadow-md transition-all cursor-pointer group">
+          <div ${dblClick} class="bg-white rounded-[20px] p-4 shadow-sm relative overflow-hidden border border-gray-300 select-none ${cursorCls}">
             <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color:${team.hex}"></div>
             <div class="pl-2.5 flex flex-col gap-2">
               <div class="flex justify-between items-start mb-1.5">
