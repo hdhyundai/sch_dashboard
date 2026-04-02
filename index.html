@@ -210,8 +210,8 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
-              <!-- PC 전용 이달의 생일자 컨테이너 -->
-              <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[13px] font-bold text-[#FF2D55] bg-[#FF2D55]/10 px-3 py-1.5 rounded-[8px] border border-[#FF2D55]/20 max-w-[300px] 2xl:max-w-[600px] shrink-0"></div>
+              <!-- PC 전용 이달의 생일자 컨테이너 (고급스러운 프리미엄 바이올렛 색상으로 변경) -->
+              <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[13px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-1.5 rounded-[8px] border border-[#8B5CF6]/20 max-w-[300px] 2xl:max-w-[600px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
               <button onclick="window.handlePrevMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
@@ -940,7 +940,7 @@
       document.getElementById('key-tasks-container').innerHTML = focusHtml;
     }
 
-    // 모바일 팝업 렌더링 (생일자 제외, 순수 업무만)
+    // 모바일 팝업 렌더링
     window.showDayPopover = function(e, dateStr, customRect = null) {
       if (e) e.stopPropagation();
       const popover = document.getElementById('calendar-popover');
@@ -1131,7 +1131,7 @@
       });
       document.getElementById('calendar-legends').innerHTML = legendsHtml;
       
-      // 이달의 생일자 (상단 헤더 전용, 캘린더 그리드에는 표시하지 않음)
+      // 이달의 생일자 (상단 헤더 전용)
       const currentMonthBirthdays = BIRTHDAYS.filter(b => parseInt(b.date.substring(5, 7)) === month + 1)
                                              .sort((a,b) => parseInt(a.date.substring(8, 10)) - parseInt(b.date.substring(8, 10)));
       const bdayContainer = document.getElementById('month-birthdays');
@@ -1178,41 +1178,48 @@
         const isRed = isCurrentMonth && (i % 7 === 0 || holidayName);
         const isSat = i % 7 === 6;
         
-        let cellClasses = `relative border-r border-b border-gray-200 transition-colors p-1 flex flex-col h-full overflow-hidden ${isCurrentMonth ? 'bg-white hover:bg-gray-50 cursor-pointer' : 'bg-[#F9F9FB] opacity-20'}`;
-        if (isSelected && isCurrentMonth) cellClasses += ` ring-2 ring-inset ring-[#007AFF] z-10 rounded-sm`;
+        let cellClasses = `relative border-r border-b border-gray-200 transition-colors p-1.5 flex flex-col h-full overflow-hidden ${isCurrentMonth ? 'bg-white hover:bg-gray-50 cursor-pointer' : 'bg-[#F9F9FB] text-black/15'}`;
+        if (isSelected && isCurrentMonth) cellClasses += ` ring-2 ring-inset ring-[#007AFF] z-10 bg-[#007AFF]/5 rounded-[4px]`;
         
         let cellContent = '';
         if (isCurrentMonth) {
-          // 생일 정보는 제외하고 순수 업무만 렌더링
           let dayTasks = filtered.filter(t => t.startDate <= cellDateStr && t.endDate >= cellDateStr).sort((a,b) => a.startTime.localeCompare(b.startTime));
           
-          const numDisplay = isSameDate(cellDate, today) ? `<span class="bg-[#007AFF] w-5 h-5 flex items-center justify-center rounded-full text-white font-bold">${dayNum}</span>` : `<span class="font-bold ${isRed?'text-[#FF3B30]':isSat?'text-[#007AFF]':'text-[#1D1D1F]'}">${dayNum}</span>`;
-          const holidayLabel = holidayName ? `<span class="absolute top-1 right-1 text-[9px] font-bold text-[#FF3B30] bg-white/80 px-1 rounded">${holidayName}</span>` : '';
+          let numColorClass = 'text-[#1D1D1F]';
+          if (isRed) numColorClass = 'text-[#FF3B30]';
+          else if (isSat) numColorClass = 'text-[#007AFF]';
+
+          const numDisplay = isSameDate(cellDate, today) ? `<span class="bg-[#007AFF] w-6 h-6 flex items-center justify-center rounded-full shadow-md text-white font-bold">${dayNum}</span>` : `<span class="w-6 h-6 flex items-center justify-center font-bold ${numColorClass}">${dayNum}</span>`;
+          const holidayLabel = holidayName ? `<span class="absolute top-1.5 right-1.5 text-[10px] font-bold text-[#FF3B30] bg-white/60 px-1 rounded">${holidayName}</span>` : '';
           
-          let tasksHtml = `<div class="flex mt-5 w-full h-full relative z-20"><div class="w-5 shrink-0"></div><div class="flex flex-col gap-1 flex-1 min-w-0">`;
+          let tasksHtml = `<div class="flex items-start w-full h-full relative z-20 pt-[2px]"><div class="w-[26px] shrink-0"></div><div class="flex flex-col gap-1 flex-1 min-w-0">`;
           const visibleLimit = 4;
           
           if (dayTasks.length > 0) {
             if (dayTasks.length <= visibleLimit) { 
               dayTasks.forEach(t => { 
                 const team = TEAMS.find(x => x.id === t.teamId); 
-                tasksHtml += `<div class="w-full bg-white rounded shadow-sm border ${team.border} ${team.bg} ${team.text} px-1 py-0.5 text-[9px] font-bold truncate leading-tight hover:opacity-70 transition-opacity cursor-pointer" ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')">${t.title}</div>`; 
+                tasksHtml += `<div class="w-full bg-white rounded-[4px] shadow-sm border ${team.border} ${team.bg} ${team.text} px-1.5 py-0.5 text-[10px] sm:text-[11px] font-bold truncate leading-tight hover:opacity-80 transition-opacity cursor-pointer" ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')">${t.title}</div>`; 
               }); 
             } else { 
               for(let j=0; j<visibleLimit-1; j++) { 
                 const t = dayTasks[j]; 
                 const team = TEAMS.find(x => x.id === t.teamId); 
-                tasksHtml += `<div class="w-full bg-white rounded shadow-sm border ${team.border} ${team.bg} ${team.text} px-1 py-0.5 text-[9px] font-bold truncate leading-tight hover:opacity-70 transition-opacity cursor-pointer" ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')">${t.title}</div>`; 
+                tasksHtml += `<div class="w-full bg-white rounded-[4px] shadow-sm border ${team.border} ${team.bg} ${team.text} px-1.5 py-0.5 text-[10px] sm:text-[11px] font-bold truncate leading-tight hover:opacity-80 transition-opacity cursor-pointer" ondblclick="event.stopPropagation(); window.openEditTaskModal('${t.id}')">${t.title}</div>`; 
               }
               const lastT = dayTasks[visibleLimit-1]; 
               const lastTeam = TEAMS.find(x => x.id === lastT.teamId);
-              tasksHtml += `<div class="flex items-center gap-0.5"><div class="flex-1 min-w-0 bg-white rounded shadow-sm border ${lastTeam.border} ${lastTeam.bg} ${lastTeam.text} px-1 py-0.5 text-[9px] font-bold truncate leading-tight cursor-pointer" ondblclick="event.stopPropagation(); window.openEditTaskModal('${lastT.id}')">${lastT.title}</div><div onclick="window.showDayPopover(event, '${cellDateStr}')" class="shrink-0 bg-white border border-gray-300 px-1 rounded text-[8px] font-black text-[#48484A] hover:bg-[#007AFF] hover:text-white transition-all shadow-sm cursor-pointer">+${dayTasks.length-visibleLimit}</div></div>`;
+              tasksHtml += `<div class="flex items-center gap-1 w-full"><div class="flex-1 min-w-0 bg-white rounded-[4px] shadow-sm border ${lastTeam.border} ${lastTeam.bg} ${lastTeam.text} px-1.5 py-0.5 text-[10px] sm:text-[11px] font-bold truncate leading-tight cursor-pointer" ondblclick="event.stopPropagation(); window.openEditTaskModal('${lastT.id}')">${lastT.title}</div><div onclick="window.showDayPopover(event, '${cellDateStr}')" class="shrink-0 bg-white border border-gray-300 px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold text-center text-[#48484A] hover:bg-[#007AFF] hover:text-white transition-all shadow-sm cursor-pointer">+${dayTasks.length-visibleLimit}</div></div>`;
             }
           }
           tasksHtml += `</div></div>`;
-          cellContent = `<div class="absolute top-1 left-1 z-10 text-[12px]">${numDisplay}</div>` + holidayLabel + tasksHtml;
+          cellContent = `<div class="absolute top-1.5 left-1.5 z-10">${numDisplay}</div>` + holidayLabel + tasksHtml;
+        } else {
+          cellContent = `<div class="text-[14px] md:text-[15px] font-bold p-1">${dayNum > 0 ? dayNum : ''}</div>`;
         }
-        gridHtml += `<div class="${cellClasses}" onclick="window.handleCellClick(event, '${cellDateStr}')">${cellContent}</div>`;
+        
+        const onClickAttr = isCurrentMonth ? `onclick="window.handleCellClick(event, '${cellDateStr}')"` : '';
+        gridHtml += `<div class="${cellClasses}" ${onClickAttr}>${cellContent}</div>`;
       }
       document.getElementById('calendar-grid').innerHTML = gridHtml;
     }
@@ -1231,30 +1238,29 @@
         dayTasks = dayTasks.filter(t => t.id === window.selectedTaskId);
       }
 
-      let html = dayTasks.length ? '' : `<div class="h-full flex flex-col items-center justify-center text-gray-400 py-10"><p class="font-bold">일정 없음</p></div>`;
+      let html = dayTasks.length ? '' : `<div class="h-full flex flex-col items-center justify-center text-gray-400 py-10"><p class="font-bold text-[16px] text-[#1D1D1F]">일정 없음</p><p class="text-[14px] mt-1 font-medium">이 날짜에 등록된 업무가 없습니다.</p></div>`;
       
       dayTasks.forEach(t => {
         const team = TEAMS.find(x => x.id === t.teamId);
         const icon = (t.type==='section'?'users':(t.type==='department'?'briefcase':'user'));
         const typeLabel = (t.type==='section'?'과단위':(t.type==='department'?'부서단위':'개인별'));
         const dblClick = `ondblclick="window.openEditTaskModal('${t.id}')"`;
-        const cursorCls = 'hover:shadow transition-all cursor-pointer';
 
         html += `
-          <div ${dblClick} class="bg-white rounded-[16px] p-3.5 shadow-sm relative overflow-hidden border border-gray-200 select-none ${cursorCls}">
-            <div class="absolute left-0 top-0 bottom-0 w-1" style="background-color:${team.hex}"></div>
-            <div class="flex flex-col gap-1.5">
-              <div class="flex justify-between items-start">
-                <h4 class="font-bold text-[14px] text-[#1D1D1F] flex items-center gap-1.5">${t.title} ${t.isFocus?'<i data-feather="star" class="w-3 h-3 text-[#FF9500] fill-[#FF9500]"></i>':''}</h4>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${team.bg} ${team.text} border ${team.border}">${team.name}</span>
+          <div ${dblClick} class="bg-white rounded-[20px] p-4 shadow-sm relative overflow-hidden border border-gray-300 select-none hover:shadow-md transition-all cursor-pointer group">
+            <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color:${team.hex}"></div>
+            <div class="pl-2.5 flex flex-col gap-2">
+              <div class="flex justify-between items-start mb-1.5">
+                <h4 class="font-bold text-[15px] text-[#1D1D1F] leading-snug flex items-center gap-2">${t.title} ${t.isFocus?'<i data-feather="star" class="w-4 h-4 text-[#FF9500] fill-[#FF9500] mb-0.5"></i>':''}</h4>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-[6px] ${team.bg} ${team.text} border ${team.border} whitespace-nowrap">${team.name}</span>
               </div>
-              <div class="flex items-center gap-3 text-[11px] font-bold text-[#86868B]">
-                <span>${t.startTime}${t.endTime?`~${t.endTime}`:''}</span>${t.location?`<span>@${t.location}</span>`:''}
+              <div class="flex items-center gap-3 text-[13px] font-bold text-[#48484A]">
+                <span class="flex items-center gap-1.5 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200"><i data-feather="clock" class="w-3.5 h-3.5"></i> ${t.startTime}${t.endTime?` ~ ${t.endTime}`:''}</span>${t.location?`<span class="flex items-center gap-1.5"><i data-feather="map-pin" class="w-3.5 h-3.5"></i> ${t.location}</span>`:''}
               </div>
-              <div class="text-[12px] font-bold flex items-center gap-1.5 text-[#48484A]">
-                <i data-feather="${icon}" class="w-3 h-3"></i> ${t.assignee} <span class="font-medium text-[10px]">(${typeLabel})</span>
+              <div class="flex items-center gap-2 text-[13px] mt-1 font-bold text-[#1D1D1F]">
+                <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 text-[10px]"><i data-feather="${icon}" class="w-3.5 h-3.5 text-[#3A3A3C]"></i></div> ${t.assignee} <span class="font-bold text-[12px] text-[#48484A]">(${typeLabel})</span>
               </div>
-              ${t.description?`<div class="mt-2 text-[12px] text-[#48484A] bg-gray-50 p-2 rounded-lg leading-relaxed whitespace-pre-wrap italic font-medium">${t.description}</div>`:''}
+              ${t.description?`<div class="mt-3 text-[13px] text-[#3A3A3C] bg-white p-3 rounded-[12px] leading-relaxed font-bold border border-gray-200 whitespace-pre-wrap">${t.description}</div>`:''}
             </div>
           </div>`;
       });
