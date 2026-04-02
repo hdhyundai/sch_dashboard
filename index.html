@@ -210,8 +210,8 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
-              <!-- PC 전용 이달의 생일자 컨테이너 (고급스러운 프리미엄 바이올렛 색상으로 변경) -->
-              <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[13px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-1.5 rounded-[8px] border border-[#8B5CF6]/20 max-w-[300px] 2xl:max-w-[600px] shrink-0"></div>
+              <!-- PC 전용 이달의 생일자 컨테이너 (고급스러운 프리미엄 바이올렛 색상 + 반응형 2줄 허용) -->
+              <div id="month-birthdays" class="hidden xl:flex items-start gap-1.5 text-[13px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-2 rounded-[8px] border border-[#8B5CF6]/20 max-w-[350px] 2xl:max-w-[650px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
               <button onclick="window.handlePrevMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
@@ -1090,10 +1090,13 @@
     };
 
     /* [기프티콘 페이크 팝업 로직] */
-    window.showGiftMenu = function(e, name) {
+    window.showGiftMenu = function(e, name, title) {
       e.stopPropagation();
       const menu = document.getElementById('gift-menu');
-      menu.innerHTML = `<div class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 rounded-[12px] transition-colors" onclick="window.showGiftSubMenu(event, '${name}')">🎁 선물하기</div>`;
+      menu.innerHTML = `
+        <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 rounded-t-[12px] border-b border-gray-100 transition-colors" onclick="window.showGiftSubMenu(event, '${name}')">🎁 선물하기</div>
+        <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 rounded-b-[12px] text-[#007AFF] transition-colors" onclick="window.sendBirthdayMessage('${name}', '${title}')">💌 축하메시지 보내기</div>
+      `;
       menu.style.left = e.clientX + 'px';
       menu.style.top = (e.clientY + 10) + 'px';
       menu.classList.remove('hidden');
@@ -1109,6 +1112,92 @@
     window.executeGift = function() {
       window.hideGiftMenu();
       showToast('그런 기능 없슴돠~ㅎ 🤪', 'info');
+    };
+
+    window.sendBirthdayMessage = async function(name, title) {
+      window.hideGiftMenu();
+      
+      // 생일 당일 체크 로직
+      const bdayPerson = BIRTHDAYS.find(b => b.name === name);
+      if (bdayPerson) {
+        const today = new Date();
+        const bdayMonth = parseInt(bdayPerson.date.substring(5, 7), 10);
+        const bdayDay = parseInt(bdayPerson.date.substring(8, 10), 10);
+        
+        const currentMonth = today.getMonth() + 1;
+        const currentDay = today.getDate();
+
+        // 오늘 날짜가 생일과 일치하지 않는 경우 차단
+        if (currentMonth !== bdayMonth || currentDay !== bdayDay) {
+          const viewingYear = currentDate.getFullYear();
+          const currentYear = today.getFullYear();
+          
+          let isBefore = false;
+          if (viewingYear > currentYear) {
+            isBefore = true;
+          } else if (viewingYear < currentYear) {
+            isBefore = false;
+          } else {
+            if (bdayMonth > currentMonth || (bdayMonth === currentMonth && bdayDay > currentDay)) {
+              isBefore = true;
+            }
+          }
+
+          if (isBefore) {
+            showToast('아직 생일이 아닙니다. 당일에 축하해주세요! 😉', 'info');
+          } else {
+            showToast('올해 생일이 이미 지났습니다. 마음만 전해주세요! 😅', 'info');
+          }
+          return;
+        }
+      }
+
+      const fullNameTitle = `${name} ${title}`;
+      
+      // USER_EMAILS 목록에서 해당 직원의 이메일을 역추적하여 찾기
+      let targetEmail = null;
+      for (const [email, userFullName] of Object.entries(USER_EMAILS)) {
+        if (userFullName === fullNameTitle) {
+          targetEmail = email;
+          break;
+        }
+      }
+
+      if (!targetEmail) {
+        showToast(`${fullNameTitle}님의 이메일 정보를 찾을 수 없습니다.`, 'error');
+        return;
+      }
+
+      if (!window.EMAIL_API_URL || window.EMAIL_API_URL === "여기에_구글_앱스_스크립트_URL_입력") {
+        showToast('메일 전송 서버가 아직 설정되지 않았습니다.', 'error');
+        return;
+      }
+
+      const subject = `[HD현대삼호 동반성장부] ${fullNameTitle}님, 생일을 진심으로 축하합니다! 🎉`;
+      const body = `${fullNameTitle}님, 생일을 진심으로 축하합니다!\n\n오늘 하루 세상에서 가장 행복하고 특별한 하루 보내시길 바랍니다.\n항상 동반성장부를 위해 애써주셔서 감사합니다.\n\n--------------------------------------------\n* 본 메일은 동반성장부 통합 워크스페이스에서 동료의 마음을 담아 자동 발송되었습니다.`;
+
+      try {
+        const response = await fetch(window.EMAIL_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            to: targetEmail,
+            replyTo: currentUser ? currentUser.email : "no-reply@hd.com",
+            senderName: "동반성장부 동료 일동",
+            subject: subject,
+            body: body
+          })
+        });
+
+        if (response.ok) {
+          showToast(`${fullNameTitle}님께 축하메세지가 보내졌습니다! 💌`, 'success');
+        } else {
+          throw new Error('서버 응답 오류');
+        }
+      } catch (error) {
+        console.error("메일 발송 실패:", error);
+        showToast('축하메시지 발송 중 오류가 발생했습니다.', 'error');
+      }
     };
 
     window.hideGiftMenu = function() {
@@ -1131,32 +1220,24 @@
       });
       document.getElementById('calendar-legends').innerHTML = legendsHtml;
       
-      // 이달의 생일자 (상단 헤더 전용)
+      // 이달의 생일자 (상단 헤더 전용, 2줄 자동 줄바꿈)
       const currentMonthBirthdays = BIRTHDAYS.filter(b => parseInt(b.date.substring(5, 7)) === month + 1)
                                              .sort((a,b) => parseInt(a.date.substring(8, 10)) - parseInt(b.date.substring(8, 10)));
       const bdayContainer = document.getElementById('month-birthdays');
       if (currentMonthBirthdays.length > 0) {
           const bdayTextHtml = currentMonthBirthdays.map(b => 
-            `<span class="cursor-pointer hover:text-[#007AFF] hover:underline transition-colors" onclick="window.showGiftMenu(event, '${b.name}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
+            `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
           ).join(', ');
           
           const bdayPlain = currentMonthBirthdays.map(b => `${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)`).join(', ');
           
-          bdayContainer.innerHTML = `<span class="shrink-0">🎂 이달의 생일자:</span> <span id="bday-text-span" class="font-medium ml-1 whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0" style="font-size: 13px;">${bdayTextHtml}</span>`;
+          // line-clamp-2 클래스를 적용하여 최대 2줄까지 자동 줄바꿈 및 말줄임표 처리
+          bdayContainer.innerHTML = `
+            <span class="shrink-0 pt-[2px]">🎂 이달의 생일자:</span> 
+            <div class="font-medium ml-0.5 line-clamp-2 leading-tight flex-1 min-w-0 text-[12.5px]">${bdayTextHtml}</div>
+          `;
           bdayContainer.title = `🎂 이달의 생일자: ${bdayPlain}`;
           bdayContainer.style.display = '';
-
-          setTimeout(() => {
-              const textSpan = document.getElementById('bday-text-span');
-              if (textSpan) {
-                  let size = 13;
-                  textSpan.style.fontSize = size + 'px';
-                  while (textSpan.scrollWidth > textSpan.clientWidth && size > 9.5) {
-                      size -= 0.5;
-                      textSpan.style.fontSize = size + 'px';
-                  }
-              }
-          }, 10);
       } else {
           bdayContainer.style.display = 'none';
       }
