@@ -251,7 +251,7 @@
             <i data-feather="plus" class="w-5 h-5"></i>
           </button>
         </div>
-        <div id="daily-focus-list" class="flex-1 overflow-y-auto p-4 md:p-5 space-y-3 bg-[#F9F9FB] rounded-b-[28px] no-scrollbar"></div>
+        <div id="daily-focus-list" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-2.5 bg-[#F9F9FB] rounded-b-[28px] no-scrollbar"></div>
       </div>
     </main>
   </div> 
@@ -1126,37 +1126,35 @@
     window.sendBirthdayMessage = async function(name, title) {
       window.hideGiftMenu();
       
-      // 생일 당일 체크 로직
+      // 생일 3일 전~후 체크 로직
       const bdayPerson = BIRTHDAYS.find(b => b.name === name);
       if (bdayPerson) {
         const today = new Date();
-        const bdayMonth = parseInt(bdayPerson.date.substring(5, 7), 10);
+        const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        
+        const bdayMonth = parseInt(bdayPerson.date.substring(5, 7), 10) - 1; // 0-indexed month
         const bdayDay = parseInt(bdayPerson.date.substring(8, 10), 10);
         
-        const currentMonth = today.getMonth() + 1;
-        const currentDay = today.getDate();
+        // 해당 직원의 올해, 작년, 내년 생일 날짜 세팅 (연말/연초 등 해가 바뀌는 구간 대응)
+        const bdayThisYear = new Date(today.getFullYear(), bdayMonth, bdayDay);
+        const bdayLastYear = new Date(today.getFullYear() - 1, bdayMonth, bdayDay);
+        const bdayNextYear = new Date(today.getFullYear() + 1, bdayMonth, bdayDay);
 
-        // 오늘 날짜가 생일과 일치하지 않는 경우 차단
-        if (currentMonth !== bdayMonth || currentDay !== bdayDay) {
-          const viewingYear = currentDate.getFullYear();
-          const currentYear = today.getFullYear();
-          
-          let isBefore = false;
-          if (viewingYear > currentYear) {
-            isBefore = true;
-          } else if (viewingYear < currentYear) {
-            isBefore = false;
-          } else {
-            if (bdayMonth > currentMonth || (bdayMonth === currentMonth && bdayDay > currentDay)) {
-              isBefore = true;
-            }
-          }
+        // 오늘과 가장 가까운 생일 차이 찾기
+        const diffThis = (todayDate - bdayThisYear) / (1000 * 60 * 60 * 24);
+        const diffLast = (todayDate - bdayLastYear) / (1000 * 60 * 60 * 24);
+        const diffNext = (todayDate - bdayNextYear) / (1000 * 60 * 60 * 24);
 
-          if (isBefore) {
-            showToast('아직 생일이 아닙니다. 당일에 축하해주세요! 😉', 'info');
-          } else {
-            showToast('올해 생일이 이미 지났습니다. 마음만 전해주세요! 😅', 'info');
-          }
+        let diffDays = diffThis;
+        if (Math.abs(diffLast) < Math.abs(diffDays)) diffDays = diffLast;
+        if (Math.abs(diffNext) < Math.abs(diffDays)) diffDays = diffNext;
+
+        // diffDays가 음수이면 생일 전, 양수이면 생일 지남
+        if (diffDays < -3) {
+          showToast('아직 생일 기간이 아닙니다. (생일 3일 전부터 가능) 😉', 'info');
+          return;
+        } else if (diffDays > 3) {
+          showToast('올해 생일 기간이 이미 지났습니다. 마음만 전해주세요! 😅', 'info');
           return;
         }
       }
@@ -1339,7 +1337,7 @@
         dayTasks = dayTasks.filter(t => t.id === window.selectedTaskId);
       }
 
-      let html = dayTasks.length ? '' : `<div class="h-full flex flex-col items-center justify-center text-gray-400 py-10"><p class="font-bold text-[16px] text-[#1D1D1F]">일정 없음</p><p class="text-[14px] mt-1 font-medium">이 날짜에 등록된 업무가 없습니다.</p></div>`;
+      let html = dayTasks.length ? '' : `<div class="h-full flex flex-col items-center justify-center text-[#86868B] py-10"><i data-feather="calendar" class="w-8 h-8 mb-2 opacity-50"></i><p class="font-bold text-[14px]">일정 없음</p></div>`;
       
       dayTasks.forEach(t => {
         const team = TEAMS.find(x => x.id === t.teamId);
@@ -1349,20 +1347,19 @@
         const cursorCls = 'hover:shadow-md transition-all cursor-pointer group';
 
         html += `
-          <div ${dblClick} class="bg-white rounded-[20px] p-4 shadow-sm relative overflow-hidden border border-gray-300 select-none ${cursorCls}">
-            <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color:${team.hex}"></div>
-            <div class="pl-2.5 flex flex-col gap-2">
-              <div class="flex justify-between items-start mb-1.5">
-                <h4 class="font-bold text-[15px] text-[#1D1D1F] leading-snug flex items-center gap-2">${t.title} ${t.isFocus?'<i data-feather="star" class="w-4 h-4 text-[#FF9500] fill-[#FF9500] mb-0.5"></i>':''}</h4>
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-[6px] ${team.bg} ${team.text} border ${team.border} whitespace-nowrap">${team.name}</span>
+          <div ${dblClick} class="bg-white rounded-[14px] p-3 shadow-sm relative overflow-hidden border border-gray-200 select-none ${cursorCls}">
+            <div class="absolute left-0 top-0 bottom-0 w-1" style="background-color:${team.hex}"></div>
+            <div class="pl-2 flex flex-col gap-1.5">
+              <div class="flex justify-between items-start">
+                <h4 class="font-bold text-[14px] text-[#1D1D1F] leading-tight flex items-center gap-1.5">${t.title} ${t.isFocus?'<i data-feather="star" class="w-3.5 h-3.5 text-[#FF9500] fill-[#FF9500] mb-px"></i>':''}</h4>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] ${team.bg} ${team.text} border ${team.border} whitespace-nowrap">${team.name}</span>
               </div>
-              <div class="flex items-center gap-3 text-[13px] font-bold text-[#48484A]">
-                <span class="flex items-center gap-1.5 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200"><i data-feather="clock" class="w-3.5 h-3.5"></i> ${t.startTime}${t.endTime?` ~ ${t.endTime}`:''}</span>${t.location?`<span class="flex items-center gap-1.5"><i data-feather="map-pin" class="w-3.5 h-3.5"></i> ${t.location}</span>`:''}
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12px] font-bold text-[#48484A]">
+                <span class="flex items-center gap-1 bg-gray-50 px-1.5 py-0.5 rounded-[4px] border border-gray-100"><i data-feather="clock" class="w-3 h-3"></i> ${t.startTime}${t.endTime?`~${t.endTime}`:''}</span>
+                ${t.location?`<span class="flex items-center gap-1"><i data-feather="map-pin" class="w-3 h-3"></i> ${t.location}</span>`:''}
+                <span class="flex items-center gap-1 text-[#1D1D1F]"><i data-feather="${icon}" class="w-3 h-3 text-[#48484A]"></i> ${t.assignee} <span class="font-medium text-[10px] text-[#86868B]">(${typeLabel})</span></span>
               </div>
-              <div class="flex items-center gap-2 text-[13px] mt-1 font-bold text-[#1D1D1F]">
-                <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 text-[10px]"><i data-feather="${icon}" class="w-3.5 h-3.5 text-[#3A3A3C]"></i></div> ${t.assignee} <span class="font-bold text-[12px] text-[#48484A]">(${typeLabel})</span>
-              </div>
-              ${t.description?`<div class="mt-3 text-[13px] text-[#3A3A3C] bg-white p-3 rounded-[12px] leading-relaxed font-bold border border-gray-200 whitespace-pre-wrap">${t.description}</div>`:''}
+              ${t.description?`<div class="mt-0.5 text-[12px] text-[#3A3A3C] bg-[#F9F9FB] px-2.5 py-2 rounded-[8px] leading-relaxed font-medium whitespace-pre-wrap border border-gray-100">${t.description}</div>`:''}
             </div>
           </div>`;
       });
