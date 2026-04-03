@@ -210,7 +210,7 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
-              <!-- PC 전용 이달의 생일자 컨테이너 (티파니 블루 컬러 & 폰트 크기 12.5px & 한줄 타이틀) -->
+              <!-- PC 전용 이달의 생일자 컨테이너 -->
               <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[12.5px] font-extrabold text-[#0D9488] bg-[#0D9488]/10 px-3 py-1.5 rounded-[8px] border border-[#0D9488]/20 max-w-[450px] 2xl:max-w-[750px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
@@ -410,7 +410,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /* ========================================================================== */
     /* 1. 상수 및 데이터 정의                                                     */
@@ -432,7 +432,7 @@
       "2026-01-01": "신정", "2026-01-02": "회사휴무",
       "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴", "2026-02-19": "대체휴가",
       "2026-03-01": "3·1절", "2026-03-02": "대체공휴일",
-      "2026-05-01": "노동절", "2026-05-05": "어린이날", "2026-05-24": "부처핸섭날", "2026-05-25": "대체공휴일",
+      "2026-05-01": "노동절", "2026-05-05": "어린이날", "2026-05-24": "부처님오신날", "2026-05-25": "대체공휴일",
       "2026-06-03": "지방선거일", "2026-06-06": "현충일",
       "2026-08-03": "하기휴가", "2026-08-04": "하기휴가", "2026-08-05": "하기휴가", "2026-08-06": "하기휴가", "2026-08-07": "하기휴가", "2026-08-08": "하기휴가", "2026-08-09": "하기휴가", "2026-08-10": "하기휴가", "2026-08-11": "하기휴가", "2026-08-12": "하기휴가", "2026-08-13": "하기휴가", "2026-08-14": "하기휴가",
       "2026-08-15": "광복절", "2026-08-17": "대체공휴일",
@@ -564,7 +564,7 @@
       {author: "에드먼드 버크 (정치인, 영국)", text: "자유는 언제나 책임과 짝을 이룬다."},
       {author: "아담 스미스 (경제학자, 영국)", text: "타인의 감정에 동감하는 능력이 도덕의 기초다."},
       {author: "토마스 제퍼슨 (정치인, 미국)", text: "정직은 지혜라는 책의 첫 번째 장이다."},
-      {author: "스티브 잡스 (기업가, 미국)", text: "갈망하라, 우직하게 나아가라."},
+      {author: "스티 잡스 (기업가, 미국)", text: "갈망하라, 우직하게 나아가라."},
       {author: "알베르트 아인슈타인 (물리학자, 미국)", text: "상상력이 지식보다 중요하다."},
       {author: "토마스 에디슨 (발명가, 미국)", text: "천재는 1% 영감과 99% 노력으로 만들어진다."},
       {author: "프랜시스 베이컨 (철학자, 영국)", text: "아는 것이 힘이다."},
@@ -703,6 +703,7 @@
     let lastClickTime = 0;
     let lastClickDate = '';
     let currentQuoteIndex = 0;
+    let hasCheckedReminders = false; // 자동 리마인드 체크 여부 플래그
 
     const timeOptions = [];
     for (let h = 0; h < 24; h++) {
@@ -777,7 +778,14 @@
           document.getElementById('initial-loader').classList.add('hidden'); 
           isFirstLoad = false; 
         }
+        
         updateAll();
+
+        // 처음 로드되었을 때만 내일자 일정 리마인드 체크
+        if (!hasCheckedReminders && tasks.length > 0) {
+          hasCheckedReminders = true;
+          window.checkAndSendReminders(tasks);
+        }
       }, (error) => { 
         console.error("Firestore error:", error); 
         updateSyncStatus('error'); 
@@ -850,7 +858,83 @@
     }
 
     /* ========================================================================== */
-    /* 5. UI 제어 및 렌더링 로직                                                  */
+    /* 5. 자동 리마인드 발송 로직 (접속 트리거)                                   */
+    /* ========================================================================== */
+    
+    window.checkAndSendReminders = function(currentTasks) {
+      // 다중 사용자가 동시에 접속했을 때의 충돌을 방지하기 위해 약간의 랜덤 지연시간 부여
+      setTimeout(async () => {
+        try {
+          const todayStr = formatDateForInput(new Date());
+          const reminderRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'reminder_status');
+          const reminderSnap = await getDoc(reminderRef);
+          
+          // 이미 누군가의 접속에 의해 오늘 리마인드가 발송되었다면 중단
+          if (reminderSnap.exists() && reminderSnap.data().lastSentDate === todayStr) {
+            return; 
+          }
+          
+          // 낙관적 락: 내가 발송 처리를 시작함을 즉시 기록
+          await setDoc(reminderRef, { lastSentDate: todayStr });
+          console.log("오늘자 자동 리마인드 메일 발송 프로세스 시작...");
+
+          // 내일 날짜 계산
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const tomorrowStr = formatDateForInput(tomorrow);
+
+          // 내일에 해당하는 일정만 필터링
+          const tomorrowTasks = currentTasks.filter(t => t.startDate <= tomorrowStr && t.endDate >= tomorrowStr);
+          
+          for (const task of tomorrowTasks) {
+            let targetEmail = null;
+            let targetName = "담당자";
+
+            // 스마트 이름 추출 및 이메일 매칭
+            if (task.teamId === 't5') {
+              targetEmail = "jwkim0732@hd.com"; // 김진위 수석(담당임원)
+              targetName = "김진위";
+            } else if (task.assignee) {
+              for (const [email, fullName] of Object.entries(USER_EMAILS)) {
+                const nameOnly = fullName.split(' ')[0]; // "하다윤 책임" -> "하다윤"
+                if (task.assignee.includes(nameOnly)) {
+                  targetEmail = email;
+                  targetName = nameOnly;
+                  break;
+                }
+              }
+            }
+
+            // 발송 대상이 있고, 메일 API가 정상적으로 설정된 경우에만 발송
+            if (targetEmail && window.EMAIL_API_URL && window.EMAIL_API_URL !== "여기에_구글_앱스_스크립트_URL_입력") {
+              const typeLabel = task.type === 'section' ? '과단위 업무' : (task.type === 'department' ? '부서단위 업무' : '개인별 업무');
+              const subject = `[HD현대삼호 동반성장부] 📅 내일 예정된 업무 일정 리마인드`;
+              const dateRange = task.startDate !== task.endDate ? `${task.startDate} ~ ${task.endDate}` : task.startDate;
+              
+              const body = `안녕하세요, ${targetName} 님!\n동반성장부 워크스페이스 알림봇입니다. 🤖\n\n내일 진행 예정인 업무 일정이 있어 미리 안내해 드립니다.\n\n📌 [내일의 일정 안내]\n* 업무 제목: ${task.title}\n* 일시: ${dateRange} (${task.startTime} ~ ${task.endTime})\n* 장소: ${task.location || '미지정'}\n* 구분: ${typeLabel}\n\n📝 [업무 상세 내용]\n${task.description || '상세 내용 없음'}\n\n--------------------------------------------------\n내일도 활기차고 성공적인 하루 보내시길 응원합니다! 파이팅! ☕\n\n* 본 메일은 동반성장부 통합 워크스페이스 시스템에 의해 첫 접속 시 자동 발송되었습니다.`;
+
+              // 백그라운드 발송 (await 처리 없이 비동기로 넘김)
+              fetch(window.EMAIL_API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ 
+                  to: targetEmail, 
+                  replyTo: "no-reply@hd.com",
+                  senderName: "워크스페이스 알림봇",
+                  subject: subject, 
+                  body: body 
+                }) 
+              }).catch(e => console.error("리마인드 메일 발송 에러", e));
+            }
+          }
+        } catch (e) {
+          console.error("자동 리마인드 처리 중 오류:", e);
+        }
+      }, Math.random() * 2000 + 1000); 
+    };
+
+    /* ========================================================================== */
+    /* 6. UI 제어 및 렌더링 로직                                                  */
     /* ========================================================================== */
     
     // Toast 알림
@@ -1380,7 +1464,7 @@
     }
 
     /* ========================================================================== */
-    /* 6. 데이터 조작 및 핸들러 함수들                                            */
+    /* 7. 데이터 조작 및 핸들러 함수들                                            */
     /* ========================================================================== */
     
     window.setFilter = (id) => { filterTeam = id; updateAll(); };
