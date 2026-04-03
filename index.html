@@ -210,8 +210,8 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
-              <!-- PC 전용 이달의 생일자 컨테이너 (티파니 블루 컬러 & 폰트 크기/굵기 최적화) -->
-              <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[11.5px] font-extrabold text-[#0D9488] bg-[#0D9488]/10 px-2.5 py-1.5 rounded-[8px] border border-[#0D9488]/20 max-w-[350px] 2xl:max-w-[650px] shrink-0"></div>
+              <!-- PC 전용 이달의 생일자 컨테이너 (티파니 블루 컬러 & 폰트 크기 12.5px & 한줄 타이틀) -->
+              <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[12.5px] font-extrabold text-[#0D9488] bg-[#0D9488]/10 px-3 py-1.5 rounded-[8px] border border-[#0D9488]/20 max-w-[450px] 2xl:max-w-[750px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
               <button onclick="window.handlePrevMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
@@ -1227,7 +1227,7 @@
       });
       document.getElementById('calendar-legends').innerHTML = legendsHtml;
       
-      // 이달의 생일자 (상단 헤더 전용, 3명 이상 시 2줄로 자동 확장, 티파니 블루 테마)
+      // 이달의 생일자 (상단 헤더 전용, 티파니 블루 테마)
       const currentMonthBirthdays = BIRTHDAYS.filter(b => parseInt(b.date.substring(5, 7)) === month + 1)
                                              .sort((a,b) => parseInt(a.date.substring(8, 10)) - parseInt(b.date.substring(8, 10)));
       const bdayContainer = document.getElementById('month-birthdays');
@@ -1251,11 +1251,8 @@
           const bdayPlain = currentMonthBirthdays.map(b => `${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)`).join(', ');
           
           bdayContainer.innerHTML = `
-            <div class="shrink-0 pt-[1px] text-center leading-tight mr-1 border-r border-[#0D9488]/30 pr-1">
-               <span class="block text-[10px] mb-[1px]">🎂 이달의</span>
-               <span class="block text-[11px]">생일자</span>
-            </div> 
-            <div id="bday-text-span" class="font-extrabold ml-0.5 leading-[1.6] text-[11.5px] break-keep flex-1 min-w-0">${bdayTextHtml}</div>
+            <span class="shrink-0 font-extrabold text-[12.5px] pt-px mr-1">🎂 이달의 생일자:</span>
+            <div id="bday-text-span" class="font-extrabold leading-[1.6] text-[12.5px] break-keep flex-1 min-w-0">${bdayTextHtml}</div>
           `;
           bdayContainer.title = `🎂 이달의 생일자: ${bdayPlain}`;
           bdayContainer.style.display = '';
@@ -1263,9 +1260,9 @@
           setTimeout(() => {
               const textSpan = document.getElementById('bday-text-span');
               if (textSpan) {
-                  let size = 11.5;
+                  let size = 12.5;
                   textSpan.style.fontSize = size + 'px';
-                  while (textSpan.scrollWidth > textSpan.clientWidth && size > 9) {
+                  while (textSpan.scrollWidth > textSpan.clientWidth && size > 9.5) {
                       size -= 0.5;
                       textSpan.style.fontSize = size + 'px';
                   }
