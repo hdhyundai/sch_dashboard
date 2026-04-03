@@ -84,6 +84,7 @@
 
   <div id="toast-container" class="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
+  <!-- 로그인 화면 -->
   <div id="login-container" class="fixed inset-0 bg-[#F2F2F7] z-[200] flex items-center justify-center hidden">
     <div class="bg-white p-8 md:p-10 rounded-[32px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-gray-200 w-full max-w-[400px] mx-4 animation-fade-in">
       <div class="flex flex-col items-center mb-8">
@@ -117,6 +118,7 @@
   <div id="app-container" class="flex-1 flex flex-col min-h-screen hidden w-full">
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-300 px-5 md:px-10 py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all">
      
+      <!-- Left: Logo & Title -->
       <div class="flex items-center gap-3.5 w-full md:w-auto shrink-0">
         <div class="w-10 h-10 md:w-11 md:h-11 rounded-[12px] bg-gradient-to-br from-[#007AFF] to-[#0056b3] flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(0,122,255,0.3)]">
           <i data-feather="calendar" class="text-white w-5 h-5"></i>
@@ -134,6 +136,7 @@
         </div>
       </div>
 
+      <!-- Middle: PC 전용 명언 위젯 -->
       <div class="hidden lg:flex flex-1 justify-center items-center px-4 min-w-0">
         <div id="quote-container" class="transition-opacity duration-700 ease-in-out opacity-0 max-w-[550px] xl:max-w-[750px] truncate text-center cursor-default select-none flex flex-col xl:flex-row items-center xl:items-baseline gap-0.5 xl:gap-2">
           <span class="text-[12px] xl:text-[14px] text-[#48484A] font-medium tracking-tight italic truncate w-full" id="quote-text"></span>
@@ -141,6 +144,7 @@
         </div>
       </div>
 
+      <!-- Right: Controls -->
       <div class="flex items-center gap-2 md:gap-3 w-full lg:w-auto shrink-0 mt-3 lg:mt-0">
         <div class="relative flex-1 lg:flex-none">
           <i data-feather="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#48484A]"></i>
@@ -206,6 +210,7 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
+              <!-- PC 전용 이달의 생일자 컨테이너 -->
               <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[12.5px] font-extrabold text-[#0D9488] bg-[#0D9488]/10 px-3 py-1.5 rounded-[8px] border border-[#0D9488]/20 max-w-[450px] 2xl:max-w-[750px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
@@ -251,6 +256,7 @@
     </main>
   </div> 
 
+  <!-- 모달 UI (최적화 버전) -->
   <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 hidden flex transition-all duration-300">
       <div class="bg-white rounded-[24px] shadow-2xl w-full max-w-[550px] overflow-hidden flex flex-col max-h-[85vh] animation-fade-in border border-gray-300">
        
@@ -397,13 +403,14 @@
     <div id="popover-content" class="flex flex-col gap-2 p-3 overflow-y-auto overscroll-contain"></div>
   </div>
 
+  <!-- 선물하기 페이크 팝업 메뉴 -->
   <div id="gift-menu" class="fixed hidden z-[10000] bg-white rounded-[12px] shadow-2xl border border-gray-200 py-1.5 flex-col text-[13px] font-bold text-[#1D1D1F] min-w-[160px] animation-fade-in pointer-events-auto">
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /* ========================================================================== */
     /* 1. 상수 및 데이터 정의                                                     */
@@ -434,10 +441,11 @@
       "2026-12-25": "기독탄신일"
     };
 
+    // 박상수 책임님의 음력 생일(1977-02-14)에 대응하는 2024~2030년 양력 날짜 매핑 추가
     const BIRTHDAYS = [
       { name: "김진위", title: "수석", date: "1974-01-26" },
       { name: "박희성", title: "책임", date: "1984-07-27" },
-      { name: "박상수", title: "책임", date: "1977-04-01" },
+      { name: "박상수", title: "책임", date: "1977-02-14", isLunar: true, lunarMap: { 2024: "03-23", 2025: "03-13", 2026: "03-31", 2027: "03-21", 2028: "03-09", 2029: "03-28", 2030: "03-17" } },
       { name: "구희준", title: "매니저", date: "1996-06-15" },
       { name: "이은정", title: "사원", date: "1997-07-10" },
       { name: "이현아", title: "사원", date: "1994-03-22" },
@@ -455,6 +463,18 @@
       { name: "박상민", title: "선임", date: "1995-01-03" },
       { name: "노정현", title: "선임", date: "1996-10-28" }
     ];
+
+    // 특정 연도의 양력 생일(월/일)을 계산해주는 헬퍼 함수
+    const getBirthdayThisYear = (person, targetYear) => {
+      if (person.isLunar && person.lunarMap && person.lunarMap[targetYear]) {
+        const parts = person.lunarMap[targetYear].split('-');
+        return { month: parseInt(parts[0], 10), day: parseInt(parts[1], 10) };
+      }
+      return {
+        month: parseInt(person.date.substring(5, 7), 10),
+        day: parseInt(person.date.substring(8, 10), 10)
+      };
+    };
 
     const QUOTES = [
       {author: "니체 (철학자, 독일)", text: "나를 죽이지 못하는 고통은 나를 더 강하게 만든다."},
@@ -704,6 +724,7 @@
       timeOptions.push(`${hour}:30`);
     }
 
+    // 최신 구글 앱스 스크립트 웹앱 주소
     window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbxrNa9TfDi-bsWFq7TqM2ABYss2-cCeBoB63xXF4WiBFouKH-PNZuXoGEeYm4BfMsJSrw/exec";
 
     /* ========================================================================== */
@@ -943,7 +964,7 @@
       document.getElementById('key-tasks-container').innerHTML = focusHtml;
     }
 
-    // 모바일 팝업 렌더링
+    // 모바일 팝업 렌더링 (더블 터치 적용)
     window.showDayPopover = function(e, dateStr, customRect = null) {
       if (e) e.stopPropagation();
       const popover = document.getElementById('calendar-popover');
@@ -958,8 +979,9 @@
       let html = '';
       dayTasks.forEach(t => {
         const team = TEAMS.find(x => x.id === t.teamId);
+        // ondblclick 적용으로 모바일/태블릿에서 두 번 터치해야 창이 열림
         html += `
-          <div onclick="window.openEditTaskModal('${t.id}')" class="flex flex-col px-2 py-1.5 rounded-[8px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 active:scale-95 transition-all">
+          <div ondblclick="window.openEditTaskModal('${t.id}')" class="flex flex-col px-2 py-1.5 rounded-[8px] border ${team.border} ${team.bg} cursor-pointer hover:opacity-80 active:scale-95 transition-all">
             <div class="flex justify-between items-center mb-0.5">
               <span class="${team.text} text-[9px] font-bold px-1.5 py-0.5 bg-white/60 rounded border ${team.border}">${team.name}</span>
               <span class="text-[10px] text-[#48484A] font-bold">${t.startTime}</span>
@@ -1120,19 +1142,18 @@
     window.sendBirthdayMessage = async function(name, title) {
       window.hideGiftMenu();
       
-      // 생일 3일 전~후 체크 로직
       const bdayPerson = BIRTHDAYS.find(b => b.name === name);
       if (bdayPerson) {
         const today = new Date();
         const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         
-        const bdayMonth = parseInt(bdayPerson.date.substring(5, 7), 10) - 1; // 0-indexed month
-        const bdayDay = parseInt(bdayPerson.date.substring(8, 10), 10);
-        
-        // 해당 직원의 올해, 작년, 내년 생일 날짜 세팅 (연말/연초 등 해가 바뀌는 구간 대응)
-        const bdayThisYear = new Date(today.getFullYear(), bdayMonth, bdayDay);
-        const bdayLastYear = new Date(today.getFullYear() - 1, bdayMonth, bdayDay);
-        const bdayNextYear = new Date(today.getFullYear() + 1, bdayMonth, bdayDay);
+        const thisYearBdayObj = getBirthdayThisYear(bdayPerson, today.getFullYear());
+        const lastYearBdayObj = getBirthdayThisYear(bdayPerson, today.getFullYear() - 1);
+        const nextYearBdayObj = getBirthdayThisYear(bdayPerson, today.getFullYear() + 1);
+
+        const bdayThisYear = new Date(today.getFullYear(), thisYearBdayObj.month - 1, thisYearBdayObj.day);
+        const bdayLastYear = new Date(today.getFullYear() - 1, lastYearBdayObj.month - 1, lastYearBdayObj.day);
+        const bdayNextYear = new Date(today.getFullYear() + 1, nextYearBdayObj.month - 1, nextYearBdayObj.day);
 
         // 오늘과 가장 가까운 생일 차이 찾기
         const diffThis = (todayDate - bdayThisYear) / (1000 * 60 * 60 * 24);
@@ -1174,6 +1195,23 @@
         return;
       }
 
+      // --- [추가된 로직] 중복 발송 방지 (Firestore 확인) ---
+      const currentYear = new Date().getFullYear();
+      const logDocId = `${currentYear}_${name}`; // 예: 2026_박상수
+      const logDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'birthday_logs', logDocId);
+
+      try {
+        const logSnap = await getDoc(logDocRef);
+        if (logSnap.exists()) {
+          const alreadySentBy = logSnap.data().senderName || "다른 동료";
+          showToast(`${alreadySentBy}님이 부서 대표로 축하 메세지를 발송했습니다. 💌`, 'info');
+          return; // 이미 누군가 보냈으므로 발송 중단
+        }
+      } catch (e) {
+        console.error("생일 발송 로그 확인 오류:", e);
+      }
+      // -----------------------------------------------------
+
       // 이모지 깨짐 방지를 위해 이모지 제거 및 깔끔한 텍스트로 변경
       const subject = `[HD현대삼호 동반성장부] ${fullNameTitle}님, 생일을 진심으로 축하합니다!`;
       const body = `${fullNameTitle}님, 생일을 진심으로 축하합니다!\n\n오늘 하루 세상에서 가장 행복하고 특별한 하루 보내시길 바랍니다.\n항상 동반성장부를 위해 애써주셔서 감사합니다.\n\n--------------------------------------------\n* 본 메일은 동반성장부 통합 워크스페이스에서 동료의 마음을 담아 자동 발송되었습니다.`;
@@ -1192,6 +1230,16 @@
         });
 
         if (response.ok) {
+          // --- [추가된 로직] 발송 성공 시 데이터베이스에 '누가 보냈는지' 기록 남기기 ---
+          const myEmail = currentUser ? currentUser.email.toLowerCase() : "";
+          const myName = USER_EMAILS[myEmail] || "누군가";
+          
+          await setDoc(logDocRef, {
+            senderName: myName,
+            sentAt: new Date().toISOString()
+          });
+          // ---------------------------------------------------------------------------
+
           showToast(`${fullNameTitle}님께 축하메시지가 보내졌습니다! 💌`, 'success');
         } else {
           throw new Error('서버 응답 오류');
@@ -1222,28 +1270,36 @@
       });
       document.getElementById('calendar-legends').innerHTML = legendsHtml;
       
-      // 이달의 생일자 (상단 헤더 전용, 티파니 블루 테마)
-      const currentMonthBirthdays = BIRTHDAYS.filter(b => parseInt(b.date.substring(5, 7)) === month + 1)
-                                             .sort((a,b) => parseInt(a.date.substring(8, 10)) - parseInt(b.date.substring(8, 10)));
+      // 이달의 생일자 (상단 헤더 전용, 티파니 블루 테마 + 양음력 지원)
+      const currentMonthBirthdays = BIRTHDAYS.filter(b => {
+          const bday = getBirthdayThisYear(b, year);
+          return bday.month === month + 1;
+      }).sort((a,b) => getBirthdayThisYear(a, year).day - getBirthdayThisYear(b, year).day);
+
+      const makeBdayStr = (b) => {
+          const d = getBirthdayThisYear(b, year).day;
+          const lunarTag = b.isLunar ? '(음)' : '';
+          return `<span class="cursor-pointer hover:text-[#0F766E] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}${lunarTag}(${d}일)</span>`;
+      };
+
+      const makeBdayPlain = (b) => {
+          const d = getBirthdayThisYear(b, year).day;
+          const lunarTag = b.isLunar ? '(음)' : '';
+          return `${b.name} ${b.title}${lunarTag}(${d}일)`;
+      };
+
       const bdayContainer = document.getElementById('month-birthdays');
       if (currentMonthBirthdays.length > 0) {
           let bdayTextHtml = '';
           if (currentMonthBirthdays.length <= 2) {
-              bdayTextHtml = currentMonthBirthdays.map(b => 
-                `<span class="cursor-pointer hover:text-[#0F766E] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
-              ).join(', ');
+              bdayTextHtml = currentMonthBirthdays.map(makeBdayStr).join(', ');
           } else {
-              const firstLine = currentMonthBirthdays.slice(0, 2).map(b => 
-                `<span class="cursor-pointer hover:text-[#0F766E] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
-              ).join(', ') + ', ';
-              const secondLine = currentMonthBirthdays.slice(2).map(b => 
-                `<span class="cursor-pointer hover:text-[#0F766E] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
-              ).join(', ');
-              
+              const firstLine = currentMonthBirthdays.slice(0, 2).map(makeBdayStr).join(', ') + ', ';
+              const secondLine = currentMonthBirthdays.slice(2).map(makeBdayStr).join(', ');
               bdayTextHtml = `${firstLine}<br/>${secondLine}`;
           }
           
-          const bdayPlain = currentMonthBirthdays.map(b => `${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)`).join(', ');
+          const bdayPlain = currentMonthBirthdays.map(makeBdayPlain).join(', ');
           
           bdayContainer.innerHTML = `
             <span class="shrink-0 font-extrabold text-[12.5px] pt-px mr-1">🎂 이달의 생일자:</span>
