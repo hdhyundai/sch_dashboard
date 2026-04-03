@@ -84,7 +84,6 @@
 
   <div id="toast-container" class="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
-  <!-- 로그인 화면 -->
   <div id="login-container" class="fixed inset-0 bg-[#F2F2F7] z-[200] flex items-center justify-center hidden">
     <div class="bg-white p-8 md:p-10 rounded-[32px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-gray-200 w-full max-w-[400px] mx-4 animation-fade-in">
       <div class="flex flex-col items-center mb-8">
@@ -118,7 +117,6 @@
   <div id="app-container" class="flex-1 flex flex-col min-h-screen hidden w-full">
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-300 px-5 md:px-10 py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all">
      
-      <!-- Left: Logo & Title -->
       <div class="flex items-center gap-3.5 w-full md:w-auto shrink-0">
         <div class="w-10 h-10 md:w-11 md:h-11 rounded-[12px] bg-gradient-to-br from-[#007AFF] to-[#0056b3] flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(0,122,255,0.3)]">
           <i data-feather="calendar" class="text-white w-5 h-5"></i>
@@ -136,7 +134,6 @@
         </div>
       </div>
 
-      <!-- Middle: PC 전용 명언 위젯 -->
       <div class="hidden lg:flex flex-1 justify-center items-center px-4 min-w-0">
         <div id="quote-container" class="transition-opacity duration-700 ease-in-out opacity-0 max-w-[550px] xl:max-w-[750px] truncate text-center cursor-default select-none flex flex-col xl:flex-row items-center xl:items-baseline gap-0.5 xl:gap-2">
           <span class="text-[12px] xl:text-[14px] text-[#48484A] font-medium tracking-tight italic truncate w-full" id="quote-text"></span>
@@ -144,7 +141,6 @@
         </div>
       </div>
 
-      <!-- Right: Controls -->
       <div class="flex items-center gap-2 md:gap-3 w-full lg:w-auto shrink-0 mt-3 lg:mt-0">
         <div class="relative flex-1 lg:flex-none">
           <i data-feather="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#48484A]"></i>
@@ -210,7 +206,6 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
-              <!-- PC 전용 이달의 생일자 컨테이너 -->
               <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[12.5px] font-extrabold text-[#0D9488] bg-[#0D9488]/10 px-3 py-1.5 rounded-[8px] border border-[#0D9488]/20 max-w-[450px] 2xl:max-w-[750px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
@@ -256,7 +251,6 @@
     </main>
   </div> 
 
-  <!-- 모달 UI (최적화 버전) -->
   <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 hidden flex transition-all duration-300">
       <div class="bg-white rounded-[24px] shadow-2xl w-full max-w-[550px] overflow-hidden flex flex-col max-h-[85vh] animation-fade-in border border-gray-300">
        
@@ -403,14 +397,13 @@
     <div id="popover-content" class="flex flex-col gap-2 p-3 overflow-y-auto overscroll-contain"></div>
   </div>
 
-  <!-- 선물하기 페이크 팝업 메뉴 -->
   <div id="gift-menu" class="fixed hidden z-[10000] bg-white rounded-[12px] shadow-2xl border border-gray-200 py-1.5 flex-col text-[13px] font-bold text-[#1D1D1F] min-w-[160px] animation-fade-in pointer-events-auto">
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /* ========================================================================== */
     /* 1. 상수 및 데이터 정의                                                     */
@@ -564,7 +557,7 @@
       {author: "에드먼드 버크 (정치인, 영국)", text: "자유는 언제나 책임과 짝을 이룬다."},
       {author: "아담 스미스 (경제학자, 영국)", text: "타인의 감정에 동감하는 능력이 도덕의 기초다."},
       {author: "토마스 제퍼슨 (정치인, 미국)", text: "정직은 지혜라는 책의 첫 번째 장이다."},
-      {author: "스티 잡스 (기업가, 미국)", text: "갈망하라, 우직하게 나아가라."},
+      {author: "스티브 잡스 (기업가, 미국)", text: "갈망하라, 우직하게 나아가라."},
       {author: "알베르트 아인슈타인 (물리학자, 미국)", text: "상상력이 지식보다 중요하다."},
       {author: "토마스 에디슨 (발명가, 미국)", text: "천재는 1% 영감과 99% 노력으로 만들어진다."},
       {author: "프랜시스 베이컨 (철학자, 영국)", text: "아는 것이 힘이다."},
@@ -703,7 +696,6 @@
     let lastClickTime = 0;
     let lastClickDate = '';
     let currentQuoteIndex = 0;
-    let hasCheckedReminders = false; // 자동 리마인드 체크 여부 플래그
 
     const timeOptions = [];
     for (let h = 0; h < 24; h++) {
@@ -712,7 +704,8 @@
       timeOptions.push(`${hour}:30`);
     }
 
-    window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwIltZx_u8mYCLIsQlRcGU2S_u7w7rCzpdbVai_XPE0iDqHdfytEM9Jo2kcHhhScm9tTg/exec";
+    // 최신 구글 앱스 스크립트 웹앱 주소 적용 완료
+    window.EMAIL_API_URL = "https://script.google.com/macros/s/AKfycbwxBBeCGoEdycQaTjRfizjvrh9rB1oiRg_IrUWzXNxHQN1_y4WZvZ2ndeqaV9wVaJahRg/exec";
 
     /* ========================================================================== */
     /* 3. Firebase 설정 및 초기화                                                 */
@@ -1182,7 +1175,8 @@
         return;
       }
 
-      const subject = `[HD현대삼호 동반성장부] ${fullNameTitle}님, 생일을 진심으로 축하합니다! 🎉`;
+      // 이모지 깨짐 방지를 위해 이모지 제거 및 깔끔한 텍스트로 변경
+      const subject = `[HD현대삼호 동반성장부] ${fullNameTitle}님, 생일을 진심으로 축하합니다!`;
       const body = `${fullNameTitle}님, 생일을 진심으로 축하합니다!\n\n오늘 하루 세상에서 가장 행복하고 특별한 하루 보내시길 바랍니다.\n항상 동반성장부를 위해 애써주셔서 감사합니다.\n\n--------------------------------------------\n* 본 메일은 동반성장부 통합 워크스페이스에서 동료의 마음을 담아 자동 발송되었습니다.`;
 
       try {
@@ -1574,6 +1568,8 @@
       }
       
       const senderDisplay = USER_EMAILS[currentUser.email.toLowerCase()] ? `${currentUser.email}(${USER_EMAILS[currentUser.email.toLowerCase()]})` : currentUser.email;
+      
+      // 업무 코멘트 메일 발송 시에도 이모지 깨짐 방지를 위해 깔끔한 텍스트 기호 사용
       const body = `[업무명: ${task.title}]\n\n${content}\n\n* 발신자: ${senderDisplay}`;
       
       try {
