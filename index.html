@@ -210,8 +210,8 @@
             <div class="flex justify-start items-center gap-3 overflow-hidden">
               <button onclick="window.handleToday()" class="shrink-0 px-4 py-2 text-[14px] font-bold text-[#1D1D1F] bg-[#E5E5EA] hover:bg-gray-300 border border-gray-300 rounded-[10px] transition-colors">오늘</button>
               
-              <!-- PC 전용 이달의 생일자 컨테이너 -->
-              <div id="month-birthdays" class="hidden xl:flex items-start gap-1.5 text-[13px] font-bold text-[#8B5CF6] bg-[#8B5CF6]/10 px-3 py-2 rounded-[8px] border border-[#8B5CF6]/20 max-w-[350px] 2xl:max-w-[650px] shrink-0"></div>
+              <!-- PC 전용 이달의 생일자 컨테이너 (티파니 블루 컬러 & 폰트 크기/굵기 최적화) -->
+              <div id="month-birthdays" class="hidden xl:flex items-center gap-1.5 text-[11.5px] font-extrabold text-[#0D9488] bg-[#0D9488]/10 px-2.5 py-1.5 rounded-[8px] border border-[#0D9488]/20 max-w-[350px] 2xl:max-w-[650px] shrink-0"></div>
             </div>
             <div class="flex items-center justify-center gap-4">
               <button onclick="window.handlePrevMonth()" class="p-2 hover:bg-gray-100 border border-transparent hover:border-gray-200 rounded-full transition-colors text-[#48484A] hover:text-[#1D1D1F]">
@@ -537,7 +537,7 @@
       {author: "에리히 프롬 (심리학자, 미국)", text: "자기 자신을 사랑하는 것이 진정한 사랑의 첫걸음이다."},
       {author: "노자 (사상가, 중국)", text: "남을 아는 것은 지혜롭지만, 자신을 아는 것은 깨달음이다."},
       {author: "칼 로저스 (심리학자, 미국)", text: "있는 그대로의 나를 수용할 때 내가 변화한다."},
-      {author: "루미 (시인, 페르시아)", text: "우주에 있는 모든 것은 당신 안에 있다."},
+      {author: "루미 (시인, 페르시아)", text: "우주에 있는 모든 단서를 당신 안에 있다."},
       {author: "파스칼 (수학자, 프랑스)", text: "짧은 편지를 쓸 시간이 없어서 긴 편지를 썼다."},
       {author: "장자 (사상가, 중국)", text: "쓸모없어 보이는 것이 때로는 가장 큰 쓸모가 있다."},
       {author: "마르쿠스 아우렐리우스 (철학자, 로마)", text: "내면을 들여다보라. 거기에 선의 샘이 있다."},
@@ -1227,7 +1227,7 @@
       });
       document.getElementById('calendar-legends').innerHTML = legendsHtml;
       
-      // 이달의 생일자 (상단 헤더 전용, 3명 이상 시 2줄로 자동 확장)
+      // 이달의 생일자 (상단 헤더 전용, 3명 이상 시 2줄로 자동 확장, 티파니 블루 테마)
       const currentMonthBirthdays = BIRTHDAYS.filter(b => parseInt(b.date.substring(5, 7)) === month + 1)
                                              .sort((a,b) => parseInt(a.date.substring(8, 10)) - parseInt(b.date.substring(8, 10)));
       const bdayContainer = document.getElementById('month-birthdays');
@@ -1235,14 +1235,14 @@
           let bdayTextHtml = '';
           if (currentMonthBirthdays.length <= 2) {
               bdayTextHtml = currentMonthBirthdays.map(b => 
-                `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
+                `<span class="cursor-pointer hover:text-[#0F766E] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
               ).join(', ');
           } else {
               const firstLine = currentMonthBirthdays.slice(0, 2).map(b => 
-                `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
+                `<span class="cursor-pointer hover:text-[#0F766E] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
               ).join(', ') + ', ';
               const secondLine = currentMonthBirthdays.slice(2).map(b => 
-                `<span class="cursor-pointer hover:text-[#7C3AED] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
+                `<span class="cursor-pointer hover:text-[#0F766E] hover:underline transition-colors inline-block" onclick="window.showGiftMenu(event, '${b.name}', '${b.title}')">${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)</span>`
               ).join(', ');
               
               bdayTextHtml = `${firstLine}<br/>${secondLine}`;
@@ -1251,11 +1251,26 @@
           const bdayPlain = currentMonthBirthdays.map(b => `${b.name} ${b.title}(${parseInt(b.date.substring(8, 10))}일)`).join(', ');
           
           bdayContainer.innerHTML = `
-            <span class="shrink-0 pt-[1px]">🎂 이달의 생일자:</span> 
-            <div class="font-medium ml-0.5 leading-[1.6] text-[13px] break-keep">${bdayTextHtml}</div>
+            <div class="shrink-0 pt-[1px] text-center leading-tight mr-1 border-r border-[#0D9488]/30 pr-1">
+               <span class="block text-[10px] mb-[1px]">🎂 이달의</span>
+               <span class="block text-[11px]">생일자</span>
+            </div> 
+            <div id="bday-text-span" class="font-extrabold ml-0.5 leading-[1.6] text-[11.5px] break-keep flex-1 min-w-0">${bdayTextHtml}</div>
           `;
           bdayContainer.title = `🎂 이달의 생일자: ${bdayPlain}`;
           bdayContainer.style.display = '';
+
+          setTimeout(() => {
+              const textSpan = document.getElementById('bday-text-span');
+              if (textSpan) {
+                  let size = 11.5;
+                  textSpan.style.fontSize = size + 'px';
+                  while (textSpan.scrollWidth > textSpan.clientWidth && size > 9) {
+                      size -= 0.5;
+                      textSpan.style.fontSize = size + 'px';
+                  }
+              }
+          }, 10);
       } else {
           bdayContainer.style.display = 'none';
       }
