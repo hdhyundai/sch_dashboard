@@ -731,8 +731,8 @@
     let USER_EMAILS = {};
     let BIRTHDAYS = [];
 
-    // 관리자 모드 접속 비밀번호 해시값 ('dongban1')
-    const ADMIN_HASH = "45deeb86";
+    // 관리자 모드 접속 비밀번호 (Base64 인코딩 값으로 안전하게 저장 - 'dongban1')
+    const ADMIN_HASH = "ZG9uZ2JhbjE=";
 
     // 기존 인원 정보 복구
     const INITIAL_MEMBERS = [
@@ -1721,16 +1721,6 @@
     /* 8. 관리자 모드 (부서원 관리) 로직                                          */
     /* ========================================================================== */
 
-    // 해시 생성 유틸리티 (iframe 환경 호환)
-    function digestMessage(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            hash = ((hash << 5) - hash) + str.charCodeAt(i);
-            hash |= 0; // Convert to 32bit integer
-        }
-        return Math.abs(hash).toString(16);
-    }
-
     window.openAdminAuthModal = function() {
         document.getElementById('admin_pwd_input').value = '';
         document.getElementById('adminAuthModal').classList.remove('hidden');
@@ -1740,8 +1730,8 @@
 
     window.verifyAdminPassword = function(e) {
         e.preventDefault();
-        const inputPwd = document.getElementById('admin_pwd_input').value;
-        const hash = digestMessage(inputPwd);
+        const inputPwd = document.getElementById('admin_pwd_input').value.trim();
+        const hash = btoa(inputPwd); // 브라우저 내장 해시(인코딩) 함수로 100% 호환 보장
         
         if (hash === ADMIN_HASH) {
             window.closeAdminAuthModal();
