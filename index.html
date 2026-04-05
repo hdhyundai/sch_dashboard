@@ -263,7 +263,7 @@
     </main>
   </div> 
 
-  <!-- 모달 UI -->
+  <!-- 모달 UI (일정) -->
   <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 hidden flex transition-all duration-300">
       <div class="bg-white rounded-[24px] shadow-2xl w-full max-w-[550px] overflow-hidden flex flex-col max-h-[85vh] animation-fade-in border border-gray-300">
        
@@ -479,6 +479,7 @@
      </div>
   </div>
 
+  <!-- 각종 팝업 메뉴 -->
   <div id="calendar-popover" class="fixed hidden z-[9999] bg-white rounded-[16px] shadow-[0_10px_40px_rgba(0,0,0,0.2)] border border-gray-200 w-64 max-h-[350px] flex-col overflow-hidden transition-opacity duration-200 opacity-0 pointer-events-none">
     <div class="flex justify-between items-center px-4 py-3 border-b border-gray-100 bg-[#F9F9FB] shrink-0">
       <h4 id="popover-title" class="text-[14px] font-bold text-[#1D1D1F]"></h4>
@@ -487,8 +488,7 @@
     <div id="popover-content" class="flex flex-col gap-2 p-3 overflow-y-auto overscroll-contain"></div>
   </div>
 
-  <div id="gift-menu" class="fixed hidden z-[10000] bg-white rounded-[12px] shadow-2xl border border-gray-200 py-1.5 flex-col text-[13px] font-bold text-[#1D1D1F] min-w-[160px] animation-fade-in pointer-events-auto">
-  </div>
+  <div id="gift-menu" class="fixed hidden z-[10000] bg-white rounded-[12px] shadow-2xl border border-gray-200 py-1.5 flex-col text-[13px] font-bold text-[#1D1D1F] min-w-[160px] animation-fade-in pointer-events-auto"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
