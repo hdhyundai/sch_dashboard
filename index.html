@@ -2,15 +2,26 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HD현대삼호 동반성장부 통합 업무 워크스페이스</title>
  
+  <!-- 모바일 전체화면(앱 모드) 지원을 위한 메타 태그 추가 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#F2F2F7">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/feather-icons"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 
   <style>
+    /* 위로 당겨서 새로고침(Pull-to-refresh) 방지 */
+    html, body {
+      overscroll-behavior-y: none;
+    }
+
     /* 미니멀 커스텀 스크롤바 */
     ::-webkit-scrollbar {
       width: 6px;
@@ -85,6 +96,7 @@
 
   <div id="toast-container" class="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
+  <!-- 로그인 화면 -->
   <div id="login-container" class="fixed inset-0 bg-[#F2F2F7] z-[200] flex items-center justify-center hidden">
     <div class="bg-white p-8 md:p-10 rounded-[32px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-gray-200 w-full max-w-[400px] mx-4 animation-fade-in">
       <div class="flex flex-col items-center mb-8">
@@ -118,6 +130,7 @@
   <div id="app-container" class="flex-1 flex flex-col min-h-screen hidden w-full">
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-300 px-3 sm:px-5 md:px-10 py-2.5 sm:py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 transition-all">
      
+      <!-- Left: Logo & Title -->
       <div class="flex items-center gap-2.5 sm:gap-3.5 w-full md:w-auto shrink-0">
         <div class="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-[10px] sm:rounded-[12px] bg-gradient-to-br from-[#007AFF] to-[#0056b3] flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(0,122,255,0.3)]">
           <i data-feather="calendar" class="text-white w-4 h-4 sm:w-5 sm:h-5"></i>
@@ -135,6 +148,7 @@
         </div>
       </div>
 
+      <!-- Middle: PC 전용 명언 위젯 -->
       <div class="hidden lg:flex flex-1 justify-center items-center px-4 min-w-0">
         <div id="quote-container" class="transition-opacity duration-700 ease-in-out opacity-0 max-w-[550px] xl:max-w-[750px] truncate text-center cursor-default select-none flex flex-col xl:flex-row items-center xl:items-baseline gap-0.5 xl:gap-2">
           <span class="text-[12px] xl:text-[14px] text-[#48484A] font-medium tracking-tight italic truncate w-full" id="quote-text"></span>
@@ -142,6 +156,7 @@
         </div>
       </div>
 
+      <!-- Right: Controls (모바일 최적화) -->
       <div class="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full lg:w-auto shrink-0 mt-2 sm:mt-3 lg:mt-0">
         <div class="relative flex-1 lg:flex-none">
           <i data-feather="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#48484A]"></i>
@@ -267,6 +282,7 @@
     </main>
   </div> 
 
+  <!-- 모달 UI (일정) -->
   <div id="taskModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[100] p-4 hidden flex transition-all duration-300">
       <div class="bg-white rounded-[24px] shadow-2xl w-full max-w-[550px] overflow-hidden flex flex-col max-h-[85vh] animation-fade-in border border-gray-300">
        
@@ -377,6 +393,7 @@
     </div>
   </div>
 
+  <!-- 비밀번호 변경 모달 -->
   <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[300] p-4 sm:p-6 hidden flex transition-all duration-300">
     <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-[400px] overflow-hidden flex flex-col animation-fade-in border border-gray-300">
       <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-white">
@@ -406,6 +423,7 @@
     </div>
   </div>
 
+  <!-- 관리자 인증 모달 -->
   <div id="adminAuthModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[300] p-4 sm:p-6 hidden flex transition-all duration-300">
     <div class="bg-white rounded-[32px] shadow-2xl w-full max-w-[400px] overflow-hidden flex flex-col animation-fade-in border border-gray-300">
       <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-white">
@@ -422,6 +440,7 @@
     </div>
   </div>
 
+  <!-- 관리자 모달 -->
   <div id="adminModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[300] p-4 hidden flex transition-all duration-300">
      <div class="bg-white rounded-[24px] shadow-2xl w-full max-w-[650px] overflow-hidden flex flex-col max-h-[85vh] animation-fade-in border border-gray-300">
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white shrink-0">
@@ -438,6 +457,7 @@
      </div>
   </div>
 
+  <!-- 부서원 폼 모달 -->
   <div id="memberFormModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-[350] p-4 hidden flex transition-all duration-300">
      <div class="bg-white rounded-[24px] shadow-2xl w-full max-w-[400px] overflow-hidden flex flex-col animation-fade-in border border-gray-300">
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white shrink-0">
